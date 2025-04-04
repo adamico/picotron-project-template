@@ -57,7 +57,7 @@ Map = nil
 -- components
 local Position = World.component({ x = 0, y = 0 })
 local Box = World.component()
-local player = World.component(
+local Player = World.component(
 	{ number = 0,
 		moving = false
 	}
@@ -84,7 +84,7 @@ function initGame()
 			sprites = {1, 2, 3, 4}
 		}),
 		Box({ x = 0, y = 0, w = playerWidth, h = playerHeight} ),
-		player(),
+		Player(),
 		Position({ x = 1, y = 1 }),
 		Speed({ x = tile_size_x, y = tile_size_y }),
 		Sprite({ value = 1 })
@@ -129,7 +129,9 @@ local canMoveTo = function (x, y)
 	return not checkTileFlag(x, y, 0)
 end
 
-local move = World.system({ Position, player }, function (entity)
+-- #systems
+
+local move = World.system({ Position, Player }, function (entity)
 	local position = entity[Position]
 	local animation = entity[Animation]
 
@@ -156,6 +158,14 @@ local move = World.system({ Position, player }, function (entity)
 	animation.offset_t = max(animation.offset_t - 0.125, 0)
 	animation.offset_x = animation.start_offset_x * animation.offset_t
 	animation.offset_y = animation.start_offset_y * animation.offset_t
+end)
+
+local animate = World.system({Sprite, Animation}, function (entity)
+	local animation = entity[Animation]
+	local sprite = entity[Sprite]
+	local sprites = animation.sprites
+	local sprite_index = flr((t()*6)%4+1)
+	sprite.value = sprites[sprite_index]
 end)
 
 local drawSprites = World.system({Position, Sprite}, function (entity)
@@ -190,6 +200,7 @@ end)
 
 function _updateGame()
 	World.update()
+	animate()
 	move()
 end
 
@@ -198,6 +209,8 @@ function _drawGame()
 	move_camera()
 	map(Map, 0, 0, 0, 0, 32, 32, 0, tile_size_x, tile_size_y)
 	drawSprites()
+	camera()
+	print("cpu:"..flr(stat(1)*100), 10, 0, 7)
 end
 
 function _updateGameOver()
@@ -326,14 +339,13 @@ function _draw()
 	log.trace("< Exiting _draw()")
 end
 
-
 -----crossfade
-_shex={["0"]=0,["1"]=1,
+local _shex={["0"]=0,["1"]=1,
 ["2"]=2,["3"]=3,["4"]=4,["5"]=5,
 ["6"]=6,["7"]=7,["8"]=8,["9"]=9,
 ["a"]=10,["b"]=11,["c"]=12,
 ["d"]=13,["e"]=14,["f"]=15}
-_pl={[0]="00000015d67",
+local _pl={[0]="00000015d67",
      [1]="0000015d677",
      [2]="0000024ef77",
      [3]="000013b7777",
@@ -349,17 +361,17 @@ _pl={[0]="00000015d67",
     [13]="00015d67777",
     [14]="00024ef7777",
     [15]="0024ef77777"}
-_pi=0-- -100=>100, remaps spal
-_pe=0-- end pi val of pal fade
-_pf=0-- frames of fade left
+local _pi=0-- -100=>100, remaps spal
+local _pe=0-- end pi val of pal fade
+local _pf=0-- frames of fade left
 function fade(from,to,f)
     _pi=from _pe=to _pf=f
 end
 
 function maybe_update_fade ()
- if (_pf>0) then --pal fade
-  if (_pf==1) then
-   _pi=_pe
+ if _pf > 0 then --pal fade
+  if _pf == 1 then
+   _pi = _pe
   else
    _pi = _pi + ((_pe-_pi)/_pf)
   end

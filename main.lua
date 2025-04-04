@@ -50,6 +50,8 @@ local directions = {
 
 World = pecs()
 State = 0
+NextState = 0
+
 Map = nil
 
 -- components
@@ -188,7 +190,6 @@ end)
 
 function _updateGame()
 	World.update()
-	if btnp(5) then State = 2 end
 	move()
 end
 
@@ -213,7 +214,7 @@ function _drawGameOver()
 end
 
 function _updateTitle()
-  if btnp(4) then State = 1 end
+  if btnp(4) then shift(1) end
 end
 
 function _drawTitle()
@@ -240,6 +241,25 @@ function _drawTitle()
   print(instructions, screen_c_x - instructions_length/2, screen_bottom/2 - 3, blink_color)
 end
 
+local shift_t = 0
+
+-- fade animation
+function shift(new_state)
+	shift_t = 0
+	State = 4
+	NextState = new_state
+	fade(0,-100,8)
+end
+
+function _updateShift()
+	shift_t = shift_t + 1
+	if shift_t > 12 then
+		shift_t = 0
+		State = NextState
+		fade(-100, 0, 8)
+	end
+end
+
 if configuration.log.enabled then
 	log.set_level(configuration.log.level)
 	log.init()
@@ -252,6 +272,7 @@ function _init()
 
 	local success, err = pcall(function()
 		-- Initialization logic here
+		shift_t = 0
 		initGame()
 	end)
 
@@ -272,6 +293,9 @@ function _update()
 		if State == 0 then _updateTitle() end
 		if State == 1 then _updateGame() end
 		if State == 2 then _updateGameOver() end
+		if State == 4 then _updateShift() end
+
+		maybe_update_fade()
 	end)
 
 	if not success then
@@ -291,6 +315,8 @@ function _draw()
 		if State == 0 then _drawTitle() end
 		if State == 1 then _drawGame() end
 		if State == 2 then _drawGameOver() end
+
+		maybe_fade()
 	end)
 
 	if not success then
@@ -298,4 +324,54 @@ function _draw()
 	end
 
 	log.trace("< Exiting _draw()")
+end
+
+
+-----crossfade
+_shex={["0"]=0,["1"]=1,
+["2"]=2,["3"]=3,["4"]=4,["5"]=5,
+["6"]=6,["7"]=7,["8"]=8,["9"]=9,
+["a"]=10,["b"]=11,["c"]=12,
+["d"]=13,["e"]=14,["f"]=15}
+_pl={[0]="00000015d67",
+     [1]="0000015d677",
+     [2]="0000024ef77",
+     [3]="000013b7777",
+     [4]="0000249a777",
+     [5]="000015d6777",
+     [6]="0015d677777",
+     [7]="015d6777777",
+     [8]="000028ef777",
+     [9]="000249a7777",
+    [10]="00249a77777",
+    [11]="00013b77777",
+    [12]="00013c77777",
+    [13]="00015d67777",
+    [14]="00024ef7777",
+    [15]="0024ef77777"}
+_pi=0-- -100=>100, remaps spal
+_pe=0-- end pi val of pal fade
+_pf=0-- frames of fade left
+function fade(from,to,f)
+    _pi=from _pe=to _pf=f
+end
+
+function maybe_update_fade ()
+ if (_pf>0) then --pal fade
+  if (_pf==1) then
+   _pi=_pe
+  else
+   _pi = _pi + ((_pe-_pi)/_pf)
+  end
+   _pf = _pf - 1
+ end
+end
+
+function maybe_fade ()
+	local pix=6+flr(_pi/20+0.5)
+	if(pix ~= 6) then
+	    for x=0,15 do
+	        pal(x,_shex[sub(_pl[x],pix,pix)],1)
+	    end
+	else pal() end
 end

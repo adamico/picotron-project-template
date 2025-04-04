@@ -84,7 +84,11 @@ function initGame()
 			sprites = {1, 2, 3, 4}
 		}),
 		Box({ x = 0, y = 0, w = playerWidth, h = playerHeight} ),
-		Player(),
+		Player({
+			moving = false,
+			capturing = false,
+			capture_time = 0
+		}),
 		Position({ x = 1, y = 1 }),
 		Speed({ x = tile_size_x, y = tile_size_y }),
 		Sprite({ value = 1 })
@@ -168,6 +172,34 @@ local animate = World.system({Sprite, Animation}, function (entity)
 	sprite.value = sprites[sprite_index]
 end)
 
+local capture = World.system({Player, Position}, function (entity)
+	if not btn(4) then return end
+	local captured_tiles = {}
+	local position = entity[Position]
+	local player = entity[Player]
+
+	add(captured_tiles, { x = position.x, y = position.y, number = 66 })
+
+	if #captured_tiles > 0 then
+		player.capturing = true
+		player.capture_time = player.capture_time + 1 --TODO: parameterize capture_time delta
+	end
+
+	if player.capture_time >= 100 then
+		for tile in all(captured_tiles) do
+			Map:set(tile.x, tile.y, tile.number)
+		end
+		player.capture_time = 0
+		player.capturing = false
+	end
+end)
+
+local drawCapture = World.system({Player, Position}, function (entity)
+	local player = entity[Player]
+	if not player.capturing then return end
+
+end)
+
 local drawSprites = World.system({Position, Sprite}, function (entity)
 	local sprite = entity[Sprite].value
 	local animation = entity[Animation]
@@ -175,8 +207,8 @@ local drawSprites = World.system({Position, Sprite}, function (entity)
 	palt(30, true)
 	palt(0, false)
 	spr(sprite,
-			entity[Position].x * tile_size_x + animation.offset_x + 1,
-			entity[Position].y * tile_size_y + animation.offset_y + 1)
+			entity[Position].x * tile_size_x + animation.offset_x + 2,
+			entity[Position].y * tile_size_y + animation.offset_y + 2)
 end)
 
 local move_camera = World.system({ Follower, Position }, function (entity)
@@ -202,12 +234,14 @@ function _updateGame()
 	World.update()
 	animate()
 	move()
+	capture()
 end
 
 function _drawGame()
 	cls(32)
 	move_camera()
 	map(Map, 0, 0, 0, 0, 32, 32, 0, tile_size_x, tile_size_y)
+	drawCapture()
 	drawSprites()
 	camera()
 	print("cpu:"..flr(stat(1)*100), 10, 0, 7)

@@ -1,0 +1,12 @@
+{
+    "Lua.diagnostics.globals": [
+        "include",
+        "configuration",
+        "cls",
+        "t"
+    ],
+    "Lua.diagnostics.disable": [
+        "lowercase-global",
+        "undefined-global"
+    ]
+}

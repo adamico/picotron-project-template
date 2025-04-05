@@ -48,20 +48,26 @@ local directions = {
 	y = { 0, 0,-1, 1,-1, 1,  1, -1}
 }
 
-World = pecs()
+-- State machine
 State = 0
 NextState = 0
 
 Map = nil
+Tiles = {}-- records captured tiles
+PlayerTiles = {71, 79, 87, 95}-- dictionary of captured tiles number for each player
+
+-- ECS
+World = pecs()
 
 -- components
 local Position = World.component({ x = 0, y = 0 })
 local Box = World.component()
-local Player = World.component(
-	{ number = 0,
-		moving = false
-	}
-)
+local Player = World.component({
+	moving = false,
+	capturing = false,
+	capture_time = 0,
+	number = 0
+})
 
 local Follower = World.component({ following = nil, within = nil })
 local Speed = World.component()
@@ -69,8 +75,25 @@ local Sprite = World.component()
 local Animation = World.component()
 local Rectangle = World.component({ border_color = 0 })
 
-function initGame()
+if configuration.log.enabled then
+	log.set_level(configuration.log.level)
+	log.init()
+end
+
+local initTiles = function ()
+	for y=1,31 do
+		local xs = {}
+		for x=1,31 do
+			local tile = mget(x, y)
+			add(xs, tile)
+		end
+		add(Tiles, xs)
+	end
+end
+
+local initGame = function ()
 	Map = fetch("map/level1.map")[1].bmp
+	memmap(Map, 0x100000)
 	local playerWidth, playerHeight = 15, 15
 	local playerEntity = World.entity(
 		{ name = "Player" },
@@ -84,11 +107,7 @@ function initGame()
 			sprites = {1, 2, 3, 4}
 		}),
 		Box({ x = 0, y = 0, w = playerWidth, h = playerHeight} ),
-		Player({
-			moving = false,
-			capturing = false,
-			capture_time = 0
-		}),
+		Player({number = 0}),
 		Position({ x = 1, y = 1 }),
 		Speed({ x = tile_size_x, y = tile_size_y }),
 		Sprite({ value = 1 })
@@ -105,9 +124,11 @@ function initGame()
 		Box({ x = cameraLeft, y = cameraTop, w = cameraWidth, h = cameraHeight }),
 		Rectangle({ border_color = 12 })
 	)
+
+	initTiles()
 end
 
-local handleInput = function ()
+local buttonsToDir = function ()
 	local offset_x, offset_y = 0, 0
 	local flip = false
 	local dx, dy = 0, 0
@@ -125,7 +146,7 @@ local handleInput = function ()
 end
 
 local checkTileFlag = function (x, y, flag)
-	local tile = Map:get(x, y)
+	local tile = mget(x, y)
 	return fget(tile, flag)
 end
 
@@ -135,17 +156,25 @@ end
 
 -- #systems
 
-local move = World.system({ Position, Player }, function (entity)
+local animate = World.system({Sprite, Animation}, function (entity)
+	local animation = entity[Animation]
+	local sprite = entity[Sprite]
+	local sprites = animation.sprites
+	local sprite_index = flr((t()*6)%4+1)
+	sprite.value = sprites[sprite_index]
+end)
+
+local move = World.system({Player, Position}, function (entity)
 	local position = entity[Position]
 	local animation = entity[Animation]
-
+	local player = entity[Player]
 	local new_offset_x, new_offset_y = animation.start_offset_x, animation.start_offset_y
 	local new_x, new_y = position.x, position.y
 	local dx, dy
 
 	if animation.offset_t == 0 then
 		new_offset_x, new_offset_y = 0, 0
-		dx, dy, new_offset_x, new_offset_y, animation.flip = handleInput()
+		dx, dy, new_offset_x, new_offset_y, animation.flip = buttonsToDir()
 		new_x = position.x + dx
 		new_y = position.y + dy
 	end
@@ -160,44 +189,98 @@ local move = World.system({ Position, Player }, function (entity)
 	end
 
 	animation.offset_t = max(animation.offset_t - 0.125, 0)
+	player.moving = animation.offset_t > 0
 	animation.offset_x = animation.start_offset_x * animation.offset_t
 	animation.offset_y = animation.start_offset_y * animation.offset_t
 end)
 
-local animate = World.system({Sprite, Animation}, function (entity)
-	local animation = entity[Animation]
-	local sprite = entity[Sprite]
-	local sprites = animation.sprites
-	local sprite_index = flr((t()*6)%4+1)
-	sprite.value = sprites[sprite_index]
-end)
+local canCapture = function (player_number, x, y)
+	local tile_number = Tiles[y][x]
+	return tile_number ~= PlayerTiles[player_number+1]
+end
 
-local capture = World.system({Player, Position}, function (entity)
-	if not btn(4) then return end
-	local captured_tiles = {}
+local capture = function (entity)
 	local position = entity[Position]
 	local player = entity[Player]
+	local x = position.x
+	local y = position.y
+	local captured_tiles = {}
 
-	add(captured_tiles, { x = position.x, y = position.y, number = 66 })
+	if canCapture(player.number, x, y) then -- this allows account for player size > 1
+		add(captured_tiles, { x = x, y = y })
+	end
 
 	if #captured_tiles > 0 then
 		player.capturing = true
-		player.capture_time = player.capture_time + 1 --TODO: parameterize capture_time delta
+		player.capture_time = player.capture_time + 1 --TODO: add capture power up
 	end
 
 	if player.capture_time >= 100 then
 		for tile in all(captured_tiles) do
-			Map:set(tile.x, tile.y, tile.number)
+			local tx = tile.x
+			local ty = tile.y
+			player.capture_time = 0
+			Tiles[ty][tx] = PlayerTiles[player.number + 1]
+			--TODO: calculate score, current player +1 and tile owner -1
+			--TODO: check for loot under captured tile
+			log.info(Tiles[y][x])
+			player.capturing = false
 		end
+	end
+end
+
+local handleInput = World.system({Player, Position}, function (entity)
+	local player = entity[Player]
+	if btn(4) and not player.moving then
+		capture(entity)
+	else
+		move(entity)
 		player.capture_time = 0
 		player.capturing = false
 	end
 end)
 
-local drawCapture = World.system({Player, Position}, function (entity)
-	local player = entity[Player]
-	if not player.capturing then return end
+local drawTile = function (x, y, tile_number)
+	local tiles = {}
+	-- size
+	-- angle stuff
+	add(tiles, { val = tile_number, x = x, y = y })
 
+	for tile in all(tiles) do
+		mset(tile.x, tile.y, tile.val)
+	end
+end
+
+local isBetween = function (n, a, b)
+	return n > a and n < b
+end
+
+local drawCapture = World.system({Position, Player}, function (entity)
+	local position = entity[Position]
+	local player = entity[Player]
+	local x, y = position.x, position.y
+	local pn = player.number
+	-- 0 : 65, 1 : 73, 2 : 81, 3 : 89
+	local ctile = 65 + 8 * pn
+	local ani_steps = 7
+	local ani_factor = 100/ani_steps
+	if player.capturing and canCapture(pn, x, y) then
+		if player.capture_time < ani_factor then
+			drawTile(x, y, ctile) -- TODO: account for player angle here
+		elseif isBetween(player.capture_time, ani_factor, ani_factor * 2) then
+			drawTile(x, y, ctile + 1)
+		elseif isBetween(player.capture_time, ani_factor * 2, ani_factor * 3) then
+			drawTile(x, y, ctile + 2)
+		elseif isBetween(player.capture_time, ani_factor * 3, ani_factor * 4) then
+			drawTile(x, y, ctile + 3)
+		elseif isBetween(player.capture_time, ani_factor * 4, ani_factor * 5) then
+			drawTile(x, y, ctile + 4)
+		elseif isBetween(player.capture_time, ani_factor * 5, ani_factor * 6) then
+			drawTile(x, y, ctile + 5)
+		elseif isBetween(player.capture_time, ani_factor * 6, ani_factor * 7) then
+			drawTile(x, y, ctile + 6)
+		end
+	end
 end)
 
 local drawSprites = World.system({Position, Sprite}, function (entity)
@@ -209,6 +292,18 @@ local drawSprites = World.system({Position, Sprite}, function (entity)
 	spr(sprite,
 			entity[Position].x * tile_size_x + animation.offset_x + 2,
 			entity[Position].y * tile_size_y + animation.offset_y + 2)
+end)
+
+local drawPlayerDebug = World.system({Position, Player}, function (entity)
+	local player = entity[Player]
+	local position = entity[Position]
+	local ct = player.capture_time
+
+	if player.capturing then print("capture_time: "..ct, 10, 6, 7) end
+	print("Px/y: "..position.x.."/"..position.y, 10, 11, 7)
+	print("Moving: "..pod(player.moving), 10, 20, 7)
+	print("Tiles: "..pod(Tiles), 10, 30, 7)
+	print("PlayerTiles: "..pod(PlayerTiles), 10, 40, 7)
 end)
 
 local move_camera = World.system({ Follower, Position }, function (entity)
@@ -230,21 +325,24 @@ local move_camera = World.system({ Follower, Position }, function (entity)
 	camera(cam_x, cam_y)
 end)
 
+-- main functions for states
+
 function _updateGame()
 	World.update()
 	animate()
-	move()
-	capture()
+	handleInput()
 end
 
 function _drawGame()
 	cls(32)
 	move_camera()
-	map(Map, 0, 0, 0, 0, 32, 32, 0, tile_size_x, tile_size_y)
+	map(0, 0, 0, 0, 32, 32, 0, tile_size_x, tile_size_y)
 	drawCapture()
 	drawSprites()
 	camera()
-	print("cpu:"..flr(stat(1)*100), 10, 0, 7)
+	-- drawUI()
+	print("cpu:"..flr(stat(1)*100), 10, 1, 7)
+	drawPlayerDebug()
 end
 
 function _updateGameOver()
@@ -305,11 +403,6 @@ function _updateShift()
 		State = NextState
 		fade(-100, 0, 8)
 	end
-end
-
-if configuration.log.enabled then
-	log.set_level(configuration.log.level)
-	log.init()
 end
 
 -- Main initialization function

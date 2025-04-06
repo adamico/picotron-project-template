@@ -29,3 +29,11 @@ World.entity(
   Box({ x = cameraLeft, y = cameraTop, w = cameraWidth, h = cameraHeight }),
   Rectangle({ border_color = 12 })
 )
+-- loot (Position, Sprite/Drawable?, Container, Owner/Contained?, Health)
+-- tile ? (Position, Sprite/Drawable?, Container, Owner/Contained?)
+-- bullet (Position, Health?, Animation, Physics, Sprite/Drawable?, Owner/Contained?, Power)
+-- explosion (Position, Health?, Animation, Sprite/Drawable?)
+-- monsters (Position, Physics, Animation, Health, Box/Size, Sprite/Drawable?, Container, Ai, Shoot, Capture?, Control?)
+-- exit? (Position, Animation, Sprite/Drawable?)
+-- particle (Position, Physics, Particle, Health, Color, Sprite/Drawable)
+-- float (Position, Color, Label)

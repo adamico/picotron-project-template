@@ -66,7 +66,7 @@ systems.move = World.system({Player, Position}, function(entity)
 		animation.offset_t = 1
 	end
 
-	local move_delta = 0.06 -- TODO: account for speed power
+	local move_delta = 0.06 -- TODO: speed power
 	animation.offset_t = max(animation.offset_t - move_delta, 0)
 	player.moving = animation.offset_t > 0
 	animation.offset_x = animation.start_offset_x * animation.offset_t
@@ -85,13 +85,13 @@ local capture = function(entity)
 	local y = position.y
 	local captured_tiles = {}
 
-	if canCapture(player.number, x, y) then -- this allows account for player size > 1
+	if canCapture(player.number, x, y) then -- TODO: size up
 		add(captured_tiles, { x = x, y = y })
 	end
 
 	if #captured_tiles > 0 then
 		player.capturing = true
-		player.capture_time = player.capture_time + 1 --TODO: add capture power up
+		player.capture_time = player.capture_time + 1 --TODO: capture power up
 	end
 
 	if player.capture_time >= 100 then
@@ -216,5 +216,24 @@ systems.move_camera = World.system({ Follower, Position }, function(entity)
 
 	camera(cam_x, cam_y)
 end)
+
+-- playerShoot(Player, Position) -- instantiate player bullet entities
+-- monsterShoot(Player, Position) -- instantiate monster bullet entities
+-- collision()
+-- spawnMonsters()
+-- spawnLoot()
+-- checkPlayerProtected()
+-- checkPlayerForm()
+-- playerTurn
+-- doGameOver()
+-- harmLoot()
+-- executeMonsterAi()
+-- getPowerUp()
+-- doEndLevel()
+
+-- drawPowerups()
+-- drawParticles()
+-- drawFloats()
+-- drawUi()
 
 return systems

@@ -22,7 +22,6 @@ include("require.lua")
 
 -- Add paths for module search
 add_module_path("lib/")
-add_module_path("src/")
 add_module_path("test/")
 
 local _TEST_PREFIX = "test_"

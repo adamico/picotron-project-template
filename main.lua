@@ -57,9 +57,9 @@ if configuration.log.enabled then
 end
 
 local initLevel = function()
-	for y=1,31 do
+	for y=9,39 do
 		local xs = {}
-		for x=1,31 do
+		for x=9,39 do
 			local tile = mget(x, y)
 			add(xs, tile)
 		end
@@ -82,14 +82,15 @@ end
 
 function _updateGame()
 	World.update()
-	systems.animate()
 	systems.handleInput()
+	systems.animate()
 end
 
 function _drawGame()
-	cls(32)
+	cls(1)
 	systems.move_camera()
-	map(0, 0, 0, 0, 32, 32, 0, tile_size_x, tile_size_y)
+	pal(0, false)
+	map(0, 0, 0, 0, 48, 48, 0, tile_size_x, tile_size_y)
 	systems.drawCapture()
 	systems.drawSprites()
 	camera()

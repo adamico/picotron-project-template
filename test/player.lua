@@ -48,7 +48,6 @@ function fixture.before_each()
 		Box({ x = 0, y = 0, w = playerWidth, h = playerHeight }),
 		Player({number = 0}),
 		Position({ x = 1, y = 1 }),
-		Speed({ x = tile_size_x, y = tile_size_y }),
 		Sprite({ value = 1 })
 	)
 end

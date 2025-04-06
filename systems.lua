@@ -5,21 +5,22 @@ local directions = {
 	y = { 0, 0,-1, 1,-1, 1,  1, -1}
 }
 
-local buttonsToDir = function()
+local buttonsToDir = function(player_number)
 	local offset_x, offset_y = 0, 0
-	local flip = false
+	local flip_h, flip_v = false, false
 	local dx, dy = 0, 0
 	for i=0,3 do
-		if btn(i) then
+		if btn(i, 0) then
 			dx = directions.x[i+1]
 			dy = directions.y[i+1]
 			offset_x = tile_size_x * -dx
 			offset_y = tile_size_y * -dy
-			flip = dx < 0
+			flip_h = dx < 0
+			flip_v = dy < 0
 		end
 	end
 
-	return dx, dy, offset_x, offset_y, flip
+	return dx, dy, offset_x, offset_y, flip_h, flip_v
 end
 
 local checkTileFlag = function(x, y, flag)
@@ -30,8 +31,6 @@ end
 local canMoveTo = function(x, y)
 	return not checkTileFlag(x, y, 0)
 end
-
--- #systems
 
 local systems = {}
 
@@ -60,14 +59,15 @@ systems.move = World.system({Player, Position}, function(entity)
 
 	if (new_x ~= position.x or new_y ~= position.y) and
 	canMoveTo(new_x, new_y) then
-		position.x = mid(0, new_x, 31)
-		position.y = mid(0, new_y, 31)
+		position.x = new_x
+		position.y = new_y
 		animation.start_offset_x = new_offset_x
 		animation.start_offset_y = new_offset_y
 		animation.offset_t = 1
 	end
 
-	animation.offset_t = max(animation.offset_t - 0.125, 0)
+	local move_delta = 0.06 -- TODO: account for speed power
+	animation.offset_t = max(animation.offset_t - move_delta, 0)
 	player.moving = animation.offset_t > 0
 	animation.offset_x = animation.start_offset_x * animation.offset_t
 	animation.offset_y = animation.start_offset_y * animation.offset_t
@@ -168,34 +168,47 @@ systems.drawSprites = World.system({Position, Sprite}, function(entity)
 
 	palt(30, true)
 	palt(0, false)
+	-- spr(9,
+	-- 	entity[Position].x * tile_size_x + 2,
+	-- 	entity[Position].y * tile_size_y + 2)
 	spr(sprite,
 			entity[Position].x * tile_size_x + animation.offset_x + 2,
 			entity[Position].y * tile_size_y + animation.offset_y + 2)
+
 end)
 
-systems.drawPlayerDebug = World.system({Position, Player}, function(entity)
+systems.drawPlayerDebug = World.system({Position, Player, Physics, Animation}, function(entity)
 	local player = entity[Player]
 	local position = entity[Position]
+	local physics = entity[Physics]
+	local animation = entity[Animation]
 	local ct = player.capture_time
 
 	if player.capturing then print("capture_time: "..ct, 10, 6, 7) end
-	print("Px/y: "..position.x.."/"..position.y, 10, 11, 7)
-	print("Moving: "..pod(player.moving), 10, 20, 7)
-	print("Tiles: "..pod(Tiles), 10, 30, 7)
-	print("PlayerTiles: "..pod(PlayerTiles), 10, 40, 7)
+	print("Px/y: "..pod(position.x).."/"..pod(position.y), 10, 11, 7)
+	-- print("Dx/y: "..pod(physics.xv).."/"..pod(physics.yv), 10, 20, 7)
+	-- print("Moving: "..pod(player.moving), 10, 20, 7)
+	-- print("Tiles: "..pod(Tiles), 10, 30, 7)
+	-- print("AniOffset x/y: "..pod(animation.start_offset_x).."/"..pod(animation.start_offset_y), 10, 30, 7)
+	-- print("PlayerTiles: "..pod(PlayerTiles), 10, 40, 7)
+	-- print("Flip h/v: "..pod(animation.flip_h).."/"..pod(animation.flip_v), 10, 40, 7)
+
 end)
 
 systems.move_camera = World.system({ Follower, Position }, function(entity)
-	local player = entity[Follower].following
+	local follower = entity[Follower]
+	local player = follower.following
+	local within = follower.within
+
 	local cam_x = mid(
-		-2.5 * tile_size_x,
-		(player[Position].x - 12.5) * tile_size_x + player[Animation].offset_x,
-		7.5 * tile_size_x
+		within.x1 * tile_size_x,
+		(player[Position].x + within.offset_x) * tile_size_x + player[Animation].offset_x,
+		within.x2 * tile_size_x
 	)
 	local cam_y = mid(
-		-2 * tile_size_y,
-		(player[Position].y - 7) * tile_size_y + player[Animation].offset_y,
-		19 * tile_size_y
+		within.y1 * tile_size_y,
+		(player[Position].y + within.offset_y) * tile_size_y + player[Animation].offset_y,
+		within.y2 * tile_size_y
 	)
 
 	entity[Position].x = cam_x

@@ -7,13 +7,14 @@ local playerEntity = World.entity(
     start_offset_x = 0,
     start_offset_y = 0,
     offset_t = 0,
-    flip = false,
+    flip_h = false,
+    flip_v = false,
     sprites = {1, 2, 3, 4}
   }),
   Box({ x = 0, y = 0, w = playerWidth, h = playerHeight} ),
   Player({number = 0}),
-  Position({ x = 1, y = 1 }),
-  Speed({ x = tile_size_x, y = tile_size_y }),
+  Physics({ xv = 0, yv = 0}),
+  Position({ x = 9, y = 9 }), -- TODO: set this for each level
   Sprite({ value = 1 })
 )
 

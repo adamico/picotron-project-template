@@ -1,24 +1,34 @@
 local PlayerTiles = {71, 79, 87, 95} -- dictionary of captured tiles number for each player
 
-local directions = {
-	x = {-1, 1, 0, 0, 1, 1, -1, -1},
-	y = { 0, 0,-1, 1,-1, 1,  1, -1}
-}
-
-local buttonsToDir = function(player_number)
+local buttonsToDir = function(entity)
+	local state = entity[State]
 	local offset_x, offset_y = 0, 0
 	local flip_h, flip_v = false, false
 	local dx, dy = 0, 0
-	for i=0,3 do
-		if btn(i, 0) then
-			dx = directions.x[i+1]
-			dy = directions.y[i+1]
-			offset_x = tile_size_x * -dx
-			offset_y = tile_size_y * -dy
-			flip_h = dx < 0
-			flip_v = dy < 0
-		end
+
+	if btn(0) then
+		dx = -1
+		dy = 0
+		state.value = "m_left"
+	elseif btn(1) then
+		dx = 1
+		dy = 0
+		state.value = "m_right"
+	elseif btn(2) then
+		dx = 0
+		dy = -1
+		state.value = "m_up"
+	elseif btn(3) then
+		dx = 0
+		dy = 1
+		state.value = "m_down"
+	else
+		state.value = "idle"
 	end
+	offset_x = tile_size_x * -dx
+	offset_y = tile_size_y * -dy
+	flip_h = dx < 0
+	flip_v = dy < 0
 
 	return dx, dy, offset_x, offset_y, flip_h, flip_v
 end
@@ -32,27 +42,59 @@ local canMoveTo = function(x, y)
 	return not checkTileFlag(x, y, 0)
 end
 
+local isBetween = function(n, a, b)
+	return n > a and n < b
+end
+
 local systems = {}
 
-systems.animate = World.system({Sprite, Animation}, function(entity)
+systems.animatePlayer = World.system({Sprite, Animation, Player}, function(entity)
 	local animation = entity[Animation]
 	local sprite = entity[Sprite]
-	local sprites = animation.sprites
-	local sprite_index = flr((t()*6)%4+1)
-	sprite.value = sprites[sprite_index]
+	local state = entity[State]
+	local player = entity[Player]
+	local states_to_sprites = {
+		idle = 0,
+		m_left = 1,
+		m_right = 2,
+		m_up = 3,
+		m_down = 4,
+		capture = 5,
+		capture2 = 6,
+		capture3 = 7
+	}
+
+	local new_state_value = state.value
+	if player.capture_time > 0 then
+		local capture_ani_steps = 3
+		local capture_ani_factor = 100/capture_ani_steps
+
+		if player.capture_time < capture_ani_factor then
+			new_state_value = "capture"
+		elseif isBetween(player.capture_time, capture_ani_factor, capture_ani_factor*2) then
+			new_state_value = "capture2"
+		elseif isBetween(player.capture_time, capture_ani_factor*2, 100) then
+			new_state_value = "capture3"
+		end
+	end
+
+	sprite.value = states_to_sprites[new_state_value]
+
+	-- local sprites = animation.sprites
+	-- local sprite_index = flr((t()*6)%4+1)
+	-- sprite.value = sprites[sprite_index]
 end)
 
 systems.move = World.system({Player, Position}, function(entity)
 	local position = entity[Position]
 	local animation = entity[Animation]
-	local player = entity[Player]
 	local new_offset_x, new_offset_y = animation.start_offset_x, animation.start_offset_y
 	local new_x, new_y = position.x, position.y
 	local dx, dy
 
 	if animation.offset_t == 0 then
 		new_offset_x, new_offset_y = 0, 0
-		dx, dy, new_offset_x, new_offset_y, animation.flip = buttonsToDir()
+		dx, dy, new_offset_x, new_offset_y, animation.flip_h, animation.flip_v = buttonsToDir(entity)
 		new_x = position.x + dx
 		new_y = position.y + dy
 	end
@@ -68,7 +110,6 @@ systems.move = World.system({Player, Position}, function(entity)
 
 	local move_delta = 0.06 -- TODO: speed power
 	animation.offset_t = max(animation.offset_t - move_delta, 0)
-	player.moving = animation.offset_t > 0
 	animation.offset_x = animation.start_offset_x * animation.offset_t
 	animation.offset_y = animation.start_offset_y * animation.offset_t
 end)
@@ -81,6 +122,7 @@ end
 local capture = function(entity)
 	local position = entity[Position]
 	local player = entity[Player]
+
 	local x = position.x
 	local y = position.y
 	local captured_tiles = {}
@@ -90,7 +132,6 @@ local capture = function(entity)
 	end
 
 	if #captured_tiles > 0 then
-		player.capturing = true
 		player.capture_time = player.capture_time + 1 --TODO: capture power up
 	end
 
@@ -100,80 +141,38 @@ local capture = function(entity)
 			local ty = tile.y
 			player.capture_time = 0
 			Tiles[ty][tx] = PlayerTiles[player.number + 1]
+			mset(tx, ty, PlayerTiles[player.number + 1])
 			--TODO: calculate score, current player +1 and tile owner -1
 			--TODO: check for loot under captured tile
-			log.info(Tiles[ty][tx])
-			player.capturing = false
 		end
 	end
+end
+
+local isMoving = function(state)
+	return state == "m_left" or state == "m_right" or state == "m_up" or state == "m_down"
 end
 
 systems.handleInput = World.system({Player, Position}, function(entity)
 	local player = entity[Player]
-	if btn(4) and not player.moving then
+	local state = entity[State]
+	local s_val = state.value
+	if btn(4) and not isMoving(s_val) then
 		capture(entity)
 	else
 		systems.move(entity)
 		player.capture_time = 0
-		player.capturing = false
 	end
 end)
 
-local drawTile = function(x, y, tile_number)
-	local tiles = {}
-	-- size
-	-- angle stuff
-	add(tiles, { val = tile_number, x = x, y = y })
-
-	for tile in all(tiles) do
-		mset(tile.x, tile.y, tile.val)
-	end
-end
-
-local isBetween = function(n, a, b)
-	return n > a and n < b
-end
-
-systems.drawCapture = World.system({Position, Player}, function(entity)
-	local position = entity[Position]
-	local player = entity[Player]
-	local x, y = position.x, position.y
-	local pn = player.number
-	-- 0 : 65, 1 : 73, 2 : 81, 3 : 89
-	local ctile = 65 + 8 * pn
-	local ani_steps = 7
-	local ani_factor = 100/ani_steps
-	if player.capturing and canCapture(pn, x, y) then
-		if player.capture_time < ani_factor then
-			drawTile(x, y, ctile) -- TODO: account for player angle here
-		elseif isBetween(player.capture_time, ani_factor, ani_factor * 2) then
-			drawTile(x, y, ctile + 1)
-		elseif isBetween(player.capture_time, ani_factor * 2, ani_factor * 3) then
-			drawTile(x, y, ctile + 2)
-		elseif isBetween(player.capture_time, ani_factor * 3, ani_factor * 4) then
-			drawTile(x, y, ctile + 3)
-		elseif isBetween(player.capture_time, ani_factor * 4, ani_factor * 5) then
-			drawTile(x, y, ctile + 4)
-		elseif isBetween(player.capture_time, ani_factor * 5, ani_factor * 6) then
-			drawTile(x, y, ctile + 5)
-		elseif isBetween(player.capture_time, ani_factor * 6, ani_factor * 7) then
-			drawTile(x, y, ctile + 6)
-		end
-	end
-end)
-
-systems.drawSprites = World.system({Position, Sprite}, function(entity)
+systems.drawPlayer = World.system({Position, Sprite, Animation}, function(entity)
 	local sprite = entity[Sprite].value
 	local animation = entity[Animation]
-
 	palt(30, true)
 	palt(0, false)
-	-- spr(9,
-	-- 	entity[Position].x * tile_size_x + 2,
-	-- 	entity[Position].y * tile_size_y + 2)
+
 	spr(sprite,
-			entity[Position].x * tile_size_x + animation.offset_x + 2,
-			entity[Position].y * tile_size_y + animation.offset_y + 2)
+			entity[Position].x * tile_size_x + animation.offset_x,
+			entity[Position].y * tile_size_y + animation.offset_y)
 
 end)
 
@@ -182,13 +181,18 @@ systems.drawPlayerDebug = World.system({Position, Player, Physics, Animation}, f
 	local position = entity[Position]
 	local physics = entity[Physics]
 	local animation = entity[Animation]
+	local state = entity[State]
 	local ct = player.capture_time
+	local sprite = entity[Sprite].value
 
 	if player.capturing then print("capture_time: "..ct, 10, 6, 7) end
 	print("Px/y: "..pod(position.x).."/"..pod(position.y), 10, 11, 7)
+	print("State: "..pod(state.value), 10, 20, 7)
 	-- print("Dx/y: "..pod(physics.xv).."/"..pod(physics.yv), 10, 20, 7)
-	-- print("Moving: "..pod(player.moving), 10, 20, 7)
+	print("Capture time: "..pod(player.capture_time), 10, 30, 7)
 	-- print("Tiles: "..pod(Tiles), 10, 30, 7)
+	-- print("Sprite: "..pod(sprite), 10, 30, 7)
+	-- print("Key0123 "..pod({btn(0),btn(1),btn(2),btn(3)}), 10, 30, 7)
 	-- print("AniOffset x/y: "..pod(animation.start_offset_x).."/"..pod(animation.start_offset_y), 10, 30, 7)
 	-- print("PlayerTiles: "..pod(PlayerTiles), 10, 40, 7)
 	-- print("Flip h/v: "..pod(animation.flip_h).."/"..pod(animation.flip_v), 10, 40, 7)

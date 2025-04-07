@@ -31,8 +31,8 @@ add_module_path("lib/")
 
 local log = require("log")
 
-tile_size_x = 18
-tile_size_y = 18
+tile_size_x = 24
+tile_size_y = 24
 screen_left = 0
 screen_right = 480
 
@@ -45,8 +45,8 @@ grid_rows = screen_bottom/tile_size_y
 
 
 -- State machine
-State = 0
-NextState = 0
+Scene = 0
+NextScene = 0
 
 Map = nil
 Tiles = {} -- records captured tiles
@@ -78,12 +78,12 @@ local initGame = function()
 	initLevel()
 end
 
--- main functions for states
+-- main functions for Scenes
 
 function _updateGame()
 	World.update()
 	systems.handleInput()
-	systems.animate()
+	systems.animatePlayer()
 end
 
 function _drawGame()
@@ -91,16 +91,15 @@ function _drawGame()
 	systems.move_camera()
 	pal(0, false)
 	map(0, 0, 0, 0, 48, 48, 0, tile_size_x, tile_size_y)
-	systems.drawCapture()
-	systems.drawSprites()
+	systems.drawPlayer()
 	camera()
 	-- drawUI()
 	-- print("cpu:"..flr(stat(1)*100), 10, 1, 7)
-	-- systems.drawPlayerDebug()
+	systems.drawPlayerDebug()
 end
 
 function _updateGameOver()
-	if btnp(4) then State = 0 end
+	if btnp(4) then Scene = 0 end
 end
 
 function _drawGameOver()
@@ -143,10 +142,10 @@ end
 local shift_t = 0
 
 -- fade animation
-function shift(new_state)
+function shift(new_scene)
 	shift_t = 0
-	State = 4
-	NextState = new_state
+	Scene = 4
+	NextScene = new_scene
 	fade(0,-100,8)
 end
 
@@ -154,7 +153,7 @@ function _updateShift()
 	shift_t = shift_t + 1
 	if shift_t > 12 then
 		shift_t = 0
-		State = NextState
+		Scene = NextScene
 		fade(-100, 0, 8)
 	end
 end
@@ -184,10 +183,10 @@ function _update()
 
 	local success, err = pcall(function()
 		-- Update logic here
-		if State == 0 then _updateTitle() end
-		if State == 1 then _updateGame() end
-		if State == 2 then _updateGameOver() end
-		if State == 4 then _updateShift() end
+		if Scene == 0 then _updateTitle() end
+		if Scene == 1 then _updateGame() end
+		if Scene == 2 then _updateGameOver() end
+		if Scene == 4 then _updateShift() end
 
 		maybe_update_fade()
 	end)
@@ -206,9 +205,9 @@ function _draw()
 
 	local success, err = pcall(function()
 		-- Draw logic here
-		if State == 0 then _drawTitle() end
-		if State == 1 then _drawGame() end
-		if State == 2 then _drawGameOver() end
+		if Scene == 0 then _drawTitle() end
+		if Scene == 1 then _drawGame() end
+		if Scene == 2 then _drawGameOver() end
 
 		maybe_fade()
 	end)

@@ -23,6 +23,7 @@ Follower = World.component({
 Sprite = World.component()
 Animation = World.component()
 Rectangle = World.component({ border_color = 0 })
+State = World.component()
 
 -- Capture (move some player attributes here, add power)
 -- Shoot

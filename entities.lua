@@ -9,13 +9,14 @@ local playerEntity = World.entity(
     offset_t = 0,
     flip_h = false,
     flip_v = false,
-    sprites = {1, 2, 3, 4}
+    sprites = {1, 2, 3, 4},
   }),
   Box({ x = 0, y = 0, w = playerWidth, h = playerHeight} ),
   Player({number = 0}),
   Physics({ xv = 0, yv = 0}),
   Position({ x = 9, y = 9 }), -- TODO: set this for each level
-  Sprite({ value = 1 })
+  Sprite({ value = 1 }),
+  State({ value = 'idle' })
 )
 
 local cameraLeft = -2.5 * tile_size_x

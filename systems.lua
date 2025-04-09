@@ -1,21 +1,38 @@
 local PlayerTiles = {71, 79, 87, 95} -- dictionary of captured tiles number for each player
 
 local machine = require("statemachine")
-local m_states = {'m_left', 'm_right', 'm_up', 'm_down' }
-local anim_fsm = machine.create({
+
+local sounds = {
+	start_engine = 48,
+	stop_engine = 49,
+	start_capturing = 50,
+	captured = 51,
+}
+
+local player_fsm = machine.create({
 	initial = 'idle',
 	events = {
-		{ name = 'move_left',   	 from = {'idle', 'move_right'}, to = 'm_left' },
-		{ name = 'move_right',  	 from = {'idle', 'move_left'},  to = 'm_right' },
-		{ name = 'move_up',     	 from = {'idle', 'm_down'}, 		to = 'm_up' },
-		{ name = 'move_down',   	 from = {'idle', 'm_up'},   		to = 'm_down' },
-		{ name = 'stop_moving', 	 from = m_states, 							to = 'idle' },
-		{ name = 'capture',  			 from = 'idle', 								to = 'capturing' },
-		{ name = 'capture2', 			 from = 'capturing',						to = 'capturing2' },
-		{ name = 'capture3', 			 from = 'capturing2',					  to = 'capturing3' },
-		{ name = 'stop_capturing', from = 'capturing3',					  to = 'idle' }
+		{ name = 'move', 					 	 from = {'idle', 'hovering'}, to = 'moving' },
+		{ name = 'stop_moving', 	 	 from = 'moving', 						to = 'hovering' },
+		{ name = 'land', 					 	 from = 'hovering',						to = 'idle' },
+		{ name = 'capture',  			 	 from = {'idle', 'hovering'},	to = 'capturing' },
+		{ name = 'stop_capturing', 	 from = 'capturing',				  to = 'idle' }
 	},
 	callbacks = {
+		onentermoving = function(self, event, from, to)
+			hover_t = nil
+			sfx(sounds.start_engine, 7)
+		end,
+		onafterland = function(self, event, from, to)
+			sfx(sounds.stop_engine, 7)
+		end,
+		onenterhovering = function(self, event, from, to)
+			hover_t = 0
+		end,
+		onaftercapture = function (self, event, from, to)
+			sfx(sounds.start_capturing, 8)
+			sfx(-1, 7)
+		end,
 		onafterstop_capturing = function(self, event, from, to, entity)
 			entity.capture_time = 0
 		end
@@ -24,22 +41,117 @@ local anim_fsm = machine.create({
 
 local buttonsToDir = function()
 	local dir = vec(0,0)
-	if btn(0) then
-		dir.x = -1
-		dir.y = 0
-	elseif btn(1) then
-		dir.x = 1
-		dir.y = 0
-	elseif btn(2) then
-		dir.x = 0
-		dir.y = -1
-	elseif btn(3) then
-		dir.x = 0
-		dir.y = 1
+
+	if not btn(4) then
+		if btn(0) then
+			dir.x = -1
+			dir.y = 0
+		elseif btn(1) then
+			dir.x = 1
+			dir.y = 0
+		elseif btn(2) then
+			dir.x = 0
+			dir.y = -1
+		elseif btn(3) then
+			dir.x = 0
+			dir.y = 1
+		end
 	end
 
 	return dir
 end
+
+local systems = {}
+
+local stateForDir = function(dir)
+	local state
+	if dir.x == -1 then state = "m_left" end
+	if dir.x == 1  then state = "m_right" end
+	if dir.y == -1 then state = "m_up" end
+	if dir.y == 1  then state = "m_down" end
+
+	return state
+end
+
+local isBetween = function(n, a, b)
+	return n >= a and n < b
+end
+
+local stateForCapture = function(capture_time)
+	local state
+	if isBetween(capture_time, 0, 33) then state = "capturing"
+	elseif isBetween(capture_time, 33, 66) then state = "capturing2"
+	elseif isBetween(capture_time, 66, 100) then state = "capturing3"
+	else
+		state = "idle"
+	end
+
+	return state
+end
+
+systems.animatePlayer = World.system({Sprite, Animation, Player}, function(entity)
+	local animation = entity[Animation]
+	local sprite = entity[Sprite]
+	local state = player_fsm.current
+	local player = entity[Player]
+	local spriteNumbersForStates = {
+		idle = 0,
+		m_left = 1,
+		m_right = 2,
+		m_up = 3,
+		m_down = 4,
+		hovering = 8,
+		capturing = 5,
+		capturing2 = 6,
+		capturing3 = 7
+	}
+
+	local new_sprite_value
+	if state == 'moving' then
+		new_sprite_value = spriteNumbersForStates[stateForDir(player.dir)]
+	elseif state == 'capturing' then
+		new_sprite_value = spriteNumbersForStates[stateForCapture(player.capture_time)]
+	else
+		new_sprite_value = spriteNumbersForStates[state]
+	end
+
+	sprite.value = new_sprite_value
+	-- local sprites = animation.sprites
+	-- local sprite_index = flr((t()*6)%4+1)
+	-- sprite.value = sprites[sprite_index]
+end)
+
+local canCapture = function(player_number, x, y)
+	local tile_number = Tiles[y][x]
+	return tile_number ~= PlayerTiles[player_number+1]
+end
+
+systems.updatePlayerState = World.system({Player}, function(entity)
+	local position = entity[Position]
+	local player = entity[Player]
+	local x = position.x
+	local y = position.y
+	local dir = player.dir
+
+	if dir.x == 0.0 and dir.y == 0.0 then
+		player_fsm:stop_moving()
+	else
+		player_fsm:move()
+	end
+
+	if hover_t and hover_t >= 30 then
+		player_fsm:land()
+		hover_t = nil
+	end
+
+	if hover_t then hover_t = hover_t + 1 end
+
+	if btn(4) and canCapture(player.number, x, y) then
+		player_fsm:capture()
+	else
+		player_fsm:stop_capturing(player)
+	end
+end)
 
 local checkTileFlag = function(x, y, flag)
 	local tile = mget(x, y)
@@ -49,90 +161,6 @@ end
 local canMoveTo = function(x, y)
 	return not checkTileFlag(x, y, 0)
 end
-
-local isBetween = function(n, a, b)
-	return n > a and n < b
-end
-
-local systems = {}
-
-local isMoving = function()
-	local state = anim_fsm.current
-	return state == "m_left" or state == "m_right" or state == "m_up" or state == "m_down"
-end
-
-local isCapturing = function(state)
-	return state == "capture" or state == "capture2" or state == "capture3"
-end
-
-local sound_states = {
-	engine_on = true,
-	engine_off = false,
-	capturing = true,
-	captured = false
-}
-
-systems.soundizePlayer = World.system({Player, State}, function(entity)
-	if sound_states.engine_on and isMoving() then
-		sfx(48, 8)
-		sound_states.engine_on = false
-		sound_states.engine_off = true
-	end
-
-	if sound_states.engine_off and anim_fsm:is("idle") then
-		sfx(49, 8)
-		sound_states.engine_off = false
-		sound_states.engine_on = true
-	end
-
-	if sound_states.capturing and isCapturing(state_value) then
-		sfx(50, 7)
-		sound_states.capturing = false
-		sound_states.captured = true
-	end
-
-	if sound_states.captured and anim_fsm:is("captured") then
-		sfx(51, 7)
-		sound_states.capturing = true
-		sound_states.captured = false
-	end
-end)
-
-systems.animatePlayer = World.system({Sprite, Animation, Player}, function(entity)
-	local animation = entity[Animation]
-	local sprite = entity[Sprite]
-	local state = anim_fsm.current
-	local player = entity[Player]
-	local states_to_sprites = {
-		idle = 0,
-		m_left = 1,
-		m_right = 2,
-		m_up = 3,
-		m_down = 4,
-		capturing = 5,
-		capturing2 = 6,
-		capturing3 = 7
-	}
-
-	sprite.value = states_to_sprites[state]
-
-	-- local sprites = animation.sprites
-	-- local sprite_index = flr((t()*6)%4+1)
-	-- sprite.value = sprites[sprite_index]
-end)
-
-systems.updatePlayerDirection = World.system({Player, State}, function(entity)
-	local state = entity[State]
-	local player = entity[Player]
-	local dir = player.dir
-
-	if dir.x == -1.0 then anim_fsm:move_left() end
-	if dir.x == 1.0 then anim_fsm:move_right() end
-	if dir.y == -1.0 then anim_fsm:move_up() end
-	if dir.y == 1.0 then anim_fsm:move_down() end
-
-	if dir.x == 0.0 and dir.y == 0.0 then anim_fsm:stop_moving() end
-end)
 
 systems.move = World.system({Player, Position}, function(entity)
 	local player = entity[Player]
@@ -165,12 +193,8 @@ systems.move = World.system({Player, Position}, function(entity)
 	animation.offset_y = animation.start_offset_y * animation.offset_t
 end)
 
-local canCapture = function(player_number, x, y)
-	local tile_number = Tiles[y][x]
-	return tile_number ~= PlayerTiles[player_number+1]
-end
-
-local capture = function(entity)
+systems.capture = World.system({Player, Position}, function(entity)
+	if not player_fsm:is("capturing") then return end
 	local position = entity[Position]
 	local player = entity[Player]
 	local x = position.x
@@ -185,19 +209,6 @@ local capture = function(entity)
 		player.capture_time = player.capture_time + 1 --TODO: account for capture power up
 	end
 
-	if player.capture_time > 0 then
-		local capture_steps = 3
-		local capture_factor = 100/capture_steps
-
-		if player.capture_time < capture_factor then
-			anim_fsm:capture()
-		elseif isBetween(player.capture_time, capture_factor, capture_factor*2) then
-			anim_fsm:capture2()
-		elseif isBetween(player.capture_time, capture_factor*2, 100) then
-			anim_fsm:capture3()
-		end
-	end
-
 	if player.capture_time >= 100 then
 		for tile in all(tiles_to_capture) do
 			local tx = tile.x
@@ -206,20 +217,15 @@ local capture = function(entity)
 			mset(tx, ty, PlayerTiles[player.number + 1])
 			--TODO: calculate score, current player +1 and tile owner -1
 			--TODO: check for loot under captured tile
+			sfx(sounds.captured, 8)
 		end
-		anim_fsm:stop_capturing(player)
+		player_fsm:stop_capturing(player)
 	end
-end
+end)
 
 systems.handleInput = World.system({Player, Position}, function(entity)
 	local player = entity[Player]
-	local state = anim_fsm.current
-	player.dir = buttonsToDir()
-	if btn(4) and not isMoving() then
-	 	capture(entity)
-	else
-	 	systems.move(entity)
-	end
+	player.dir = buttonsToDir() --TODO: account for player number
 end)
 
 systems.drawPlayer = World.system({Position, Sprite, Animation}, function(entity)
@@ -244,7 +250,7 @@ systems.drawPlayerDebug = World.system({Position, Player, Physics, Animation}, f
 	local sprite = entity[Sprite].value
 
 	print("Px/y: "..pod(position.x).."/"..pod(position.y), 10, 10, 7)
-	print("State: "..pod(anim_fsm.current), 10, 20, 7)
+	print("State: "..pod(player_fsm.current), 10, 20, 7)
 	print("Dir: x"..player.dir.x.."/y"..player.dir.y, 10, 30, 7)
 	-- print("Is moving: "..pod(isMoving(state.value)), 10, 20, 7)
 	-- print("Dx/y: "..pod(physics.xv).."/"..pod(physics.yv), 10, 20, 7)
@@ -252,9 +258,11 @@ systems.drawPlayerDebug = World.system({Position, Player, Physics, Animation}, f
 	-- print("Tiles: "..pod(Tiles), 10, 30, 7)
 	-- print("Sprite: "..pod(sprite), 10, 30, 7)
 	-- print("Key0123 "..pod({btn(0),btn(1),btn(2),btn(3)}), 10, 30, 7)
-	-- print("AniOffset x/y: "..pod(animation.start_offset_x).."/"..pod(animation.start_offset_y), 10, 30, 7)
-	-- print("play engine on: "..pod(play_engine_on), 10, 40, 7)
-	-- print("play engine off: "..pod(play_engine_off), 10, 50, 7)
+	-- print("AniOffset x/y: "..pod(animation.start_offset_x).."/"..pod(animation.start_offset_y), 10, 40, 7)
+	-- print("AniOffset t: "..pod(animation.offset_t), 10, 50, 7)
+	-- print("play engine on: "..pod(play_start_engine), 10, 40, 7)
+	-- print("hover_t: "..pod(hover_t), 10, 40, 7)
+	-- print("play engine off: "..pod(play_stop_engine), 10, 50, 7)
 	-- print("Flip h/v: "..pod(animation.flip_h).."/"..pod(animation.flip_v), 10, 40, 7)
 
 end)

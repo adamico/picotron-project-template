@@ -86,7 +86,9 @@ function _updateGame()
 	if play_music then music(0, 1000) play_music = false end
 	World.update()
 	systems.handleInput()
-	systems.updatePlayerDirection()
+	systems.capture()
+	systems.move()
+	systems.updatePlayerState()
 	systems.animatePlayer()
 	-- systems.soundizePlayer()
 end

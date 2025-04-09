@@ -15,10 +15,7 @@ Player = World.component({
 
 Follower = World.component({
 	following = nil,
-	within = {
-		x1 = 1, offset_x = -12.5, x2 = 20.3,
-		y1 = 0, offset_y = -7, y2 = 31
-	}
+	within = nil
 })
 Sprite = World.component()
 Animation = World.component()

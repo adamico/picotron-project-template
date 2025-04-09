@@ -25,7 +25,13 @@ local cameraWidth = 7.5 * tile_size_x
 local cameraHeight = 19 * tile_size_y
 World.entity(
   { name = "Camera" },
-  Follower({ following = playerEntity }),
+  Follower({
+    following = playerEntity,
+    within = {
+      x1 = 4, offset_x = -9.5, x2 = 24.3,
+      y1 = -5, offset_y = -5.125, y2 = 33
+    }
+  }),
   Position({ x = 0, y = 0 }),
   Box({ x = cameraLeft, y = cameraTop, w = cameraWidth, h = cameraHeight }),
   Rectangle({ border_color = 12 })

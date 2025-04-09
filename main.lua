@@ -51,6 +51,8 @@ NextScene = 0
 Map = nil
 Tiles = {} -- records captured tiles
 
+local play_music = false
+
 if configuration.log.enabled then
 	log.set_level(configuration.log.level)
 	log.init()
@@ -81,9 +83,12 @@ end
 -- main functions for Scenes
 
 function _updateGame()
+	if play_music then music(0, 1000) play_music = false end
 	World.update()
 	systems.handleInput()
+	systems.updatePlayerDirection()
 	systems.animatePlayer()
+	-- systems.soundizePlayer()
 end
 
 function _drawGame()

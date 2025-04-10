@@ -35,6 +35,7 @@ local player_fsm = machine.create({
 		end,
 		onafterstop_capturing = function(self, event, from, to, entity)
 			entity.capture_time = 0
+			sfx(-1, 8)
 		end
 	}
 })
@@ -217,9 +218,9 @@ systems.capture = World.system({Player, Position}, function(entity)
 			mset(tx, ty, PlayerTiles[player.number + 1])
 			--TODO: calculate score, current player +1 and tile owner -1
 			--TODO: check for loot under captured tile
-			sfx(sounds.captured, 8)
 		end
 		player_fsm:stop_capturing(player)
+		sfx(sounds.captured, 8)
 	end
 end)
 

@@ -29,6 +29,7 @@ include("configuration.lua")
 add_module_path("lib/")
 
 local log = require("log")
+local pgui = require("pgui")
 local pecs = require("pecs")
 
 tile_size_x = 24

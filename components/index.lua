@@ -1,12 +1,13 @@
 Position = World.component({ x = 0, y = 0, angle = 0 })
+
 Box = World.component()
+
 Physics = World.component({
 	xv = 0, yv = 0,
 	-- speed power
 })
+
 Player = World.component({
-	moving = false,
-	capturing = false,
 	capture_time = 0,
 	number = 0,
 	alive = true,
@@ -17,10 +18,10 @@ Follower = World.component({
 	following = nil,
 	within = nil
 })
+
 Sprite = World.component()
+
 Animation = World.component()
-Rectangle = World.component({ border_color = 0 })
-State = World.component()
 
 -- Capture (move some player attributes here, add power)
 -- Shoot

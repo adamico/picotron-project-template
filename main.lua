@@ -30,7 +30,6 @@ add_module_path("lib/")
 add_module_path("scenes/")
 
 local log = require("log")
-local pgui = require("pgui")
 
 tile_size_x = 24
 tile_size_y = 24

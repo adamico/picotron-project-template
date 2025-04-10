@@ -27,7 +27,7 @@ include("components.lua")
 
 local playerEntity
 
-local systems = require("systems")
+local systems = require("systems.index")
 
 local fixture = { }
 

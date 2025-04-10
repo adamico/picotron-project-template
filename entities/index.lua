@@ -15,8 +15,7 @@ local playerEntity = World.entity(
   Player({number = 0}),
   Physics({ xv = 0, yv = 0}),
   Position({ x = 9, y = 9 }), -- TODO: set this for each level
-  Sprite({ value = 1 }),
-  State({ value = 'idle' })
+  Sprite({ value = 1 })
 )
 
 local cameraLeft = -2.5 * tile_size_x
@@ -33,11 +32,9 @@ World.entity(
     }
   }),
   Position({ x = 0, y = 0 }),
-  Box({ x = cameraLeft, y = cameraTop, w = cameraWidth, h = cameraHeight }),
-  Rectangle({ border_color = 12 })
+  Box({ x = cameraLeft, y = cameraTop, w = cameraWidth, h = cameraHeight })
 )
 -- loot (Position, Sprite/Drawable?, Container, Owner/Contained?, Health)
--- tile ? (Position, Sprite/Drawable?, Container, Owner/Contained?)
 -- bullet (Position, Health?, Animation, Physics, Sprite/Drawable?, Owner/Contained?, Power)
 -- explosion (Position, Health?, Animation, Sprite/Drawable?)
 -- monsters (Position, Physics, Animation, Health, Box/Size, Sprite/Drawable?, Container, Ai, Shoot, Capture?, Control?)

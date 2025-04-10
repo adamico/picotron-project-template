@@ -18,7 +18,7 @@
 ]]
 
 include("globals.lua")
-include("require.lua")
+include("lib/require.lua")
 
 -- Add paths for module search
 add_module_path("lib/")

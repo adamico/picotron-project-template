@@ -71,7 +71,7 @@ local array_same, find, every, assign =
 
 -- Assigning to _ENV makes
 -- it available globally
-_ENV.pecs = function ()
+local pecs = function ()
     local entities = {}
     local queries = {}
     local systems = {}
@@ -224,4 +224,6 @@ _ENV.pecs = function ()
         update = update,
     }
 end
+
+return pecs
 -- END pecs ENTITY COMPONENT SYSTEM

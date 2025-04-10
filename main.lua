@@ -25,11 +25,11 @@ Date = date("2020-%Y")
 include("globals.lua")
 include("require.lua")
 include("configuration.lua")
-include("lib/pecs.lua")
 
 add_module_path("lib/")
 
 local log = require("log")
+local pecs = require("pecs")
 
 tile_size_x = 24
 tile_size_y = 24
@@ -43,8 +43,7 @@ screen_c_y = screen_bottom/2
 grid_columns = screen_right/tile_size_x
 grid_rows = screen_bottom/tile_size_y
 
-
--- State machine
+-- Scene Manager
 Scene = 0
 NextScene = 0
 

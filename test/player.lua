@@ -48,7 +48,7 @@ function fixture.before_each()
 		Box({ x = 0, y = 0, w = playerWidth, h = playerHeight }),
 		Player({number = 0}),
 		Position({ x = 1, y = 1 }),
-		Sprite({ value = 1 })
+		Sprite({ number = 1 })
 	)
 end
 

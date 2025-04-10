@@ -6,7 +6,6 @@ Map = nil
 
 local play_music = false
 
-player_fsm = require("player_fsm")
 PlayerTiles = {71, 79, 87, 95} -- dictionary of captured tiles number for each player
 
 game.initLevel = function()

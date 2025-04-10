@@ -1,12 +1,12 @@
-player_fsm = require("player_fsm")
-
 systems.capture = World.system({Player, Position}, function(entity)
-	if not player_fsm:is("capturing") then return end
 	local position = entity[Position]
 	local player = entity[Player]
+	local fsm = player.state
 	local x = position.x
 	local y = position.y
 	local tiles_to_capture = {}
+
+	if not fsm:is("capturing") then return end
 
 	if canCapture(player.number, x, y) then -- TODO: account for size
 		add(tiles_to_capture, { x = x, y = y })
@@ -24,7 +24,7 @@ systems.capture = World.system({Player, Position}, function(entity)
 			--TODO: calculate score, current player +1 and tile owner -1
 			--TODO: check for loot under captured tile
 		end
-		player_fsm:stop_capturing(player)
+		fsm:stop_capturing(player)
 		sfx(sounds.captured, 8)
 	end
 end)

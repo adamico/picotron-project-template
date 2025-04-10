@@ -25,10 +25,10 @@ local stateForDir = function(dir)
 end
 
 systems.animatePlayer = World.system({Sprite, Animation, Player}, function(entity)
-	local animation = entity[Animation]
+	-- local animation = entity[Animation]
 	local sprite = entity[Sprite]
-	local state = player_fsm.current
 	local player = entity[Player]
+	local state = player.state.current
 	local spriteNumbersForStates = {
 		idle = 0,
 		m_left = 1,
@@ -50,8 +50,8 @@ systems.animatePlayer = World.system({Sprite, Animation, Player}, function(entit
 		new_sprite_value = spriteNumbersForStates[state]
 	end
 
-	sprite.value = new_sprite_value
+	sprite.number = new_sprite_value
 	-- local sprites = animation.sprites
 	-- local sprite_index = flr((t()*6)%4+1)
-	-- sprite.value = sprites[sprite_index]
+	-- sprite.number = sprites[sprite_index]
 end)

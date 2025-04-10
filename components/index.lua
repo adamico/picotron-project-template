@@ -7,12 +7,7 @@ Physics = World.component({
 	-- speed power
 })
 
-Player = World.component({
-	capture_time = 0,
-	number = 0,
-	alive = true,
-	protected = false
-})
+Player = World.component()
 
 Follower = World.component({
 	following = nil,

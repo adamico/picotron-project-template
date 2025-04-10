@@ -123,7 +123,7 @@ systems.animatePlayer = World.system({Sprite, Animation, Player}, function(entit
 end)
 
 local canCapture = function(player_number, x, y)
-	local tile_number = Tiles[y][x]
+	local tile_number = mget(x, y)
 	return tile_number ~= PlayerTiles[player_number+1]
 end
 
@@ -214,7 +214,6 @@ systems.capture = World.system({Player, Position}, function(entity)
 		for tile in all(tiles_to_capture) do
 			local tx = tile.x
 			local ty = tile.y
-			Tiles[ty][tx] = PlayerTiles[player.number + 1]
 			mset(tx, ty, PlayerTiles[player.number + 1])
 			--TODO: calculate score, current player +1 and tile owner -1
 			--TODO: check for loot under captured tile
@@ -250,21 +249,18 @@ systems.drawPlayerDebug = World.system({Position, Player, Physics, Animation}, f
 	local ct = player.capture_time
 	local sprite = entity[Sprite].value
 
+	print("cpu:"..flr(stat(1)*100), 10, 1, 7)
 	print("Px/y: "..pod(position.x).."/"..pod(position.y), 10, 10, 7)
 	print("State: "..pod(player_fsm.current), 10, 20, 7)
 	print("Dir: x"..player.dir.x.."/y"..player.dir.y, 10, 30, 7)
 	-- print("Is moving: "..pod(isMoving(state.value)), 10, 20, 7)
 	-- print("Dx/y: "..pod(physics.xv).."/"..pod(physics.yv), 10, 20, 7)
 	print("Capture time: "..pod(player.capture_time), 10, 40, 7)
-	-- print("Tiles: "..pod(Tiles), 10, 30, 7)
 	-- print("Sprite: "..pod(sprite), 10, 30, 7)
 	-- print("Key0123 "..pod({btn(0),btn(1),btn(2),btn(3)}), 10, 30, 7)
 	-- print("AniOffset x/y: "..pod(animation.start_offset_x).."/"..pod(animation.start_offset_y), 10, 40, 7)
 	-- print("AniOffset t: "..pod(animation.offset_t), 10, 50, 7)
-	-- print("play engine on: "..pod(play_start_engine), 10, 40, 7)
 	-- print("hover_t: "..pod(hover_t), 10, 40, 7)
-	-- print("play engine off: "..pod(play_stop_engine), 10, 50, 7)
-	-- print("Flip h/v: "..pod(animation.flip_h).."/"..pod(animation.flip_v), 10, 40, 7)
 
 end)
 

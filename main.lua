@@ -23,7 +23,7 @@ Author = "kc00l"
 Date = date("2020-%Y")
 
 include("globals.lua")
-include("require.lua")
+include("lib/require.lua")
 include("configuration.lua")
 
 add_module_path("lib/")

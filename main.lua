@@ -23,6 +23,7 @@ Author = "kc00l"
 Date = date("2020-%Y")
 
 include("globals.lua")
+include("constants.lua")
 include("lib/require.lua")
 include("configuration.lua")
 
@@ -30,14 +31,6 @@ add_module_path("lib/")
 add_module_path("scenes/")
 
 local log = require("log")
-
-tile_size_x = 24
-tile_size_y = 24
-
-Screen = { w=480, h=270 }
-
-screen_c_x = Screen.w/2
-screen_c_y = Screen.h/2
 
 -- Scene Manager
 Scene = 0

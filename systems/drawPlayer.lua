@@ -5,6 +5,6 @@ systems.drawPlayer = World.system({Player, Position, Sprite, Animation}, functio
 	palt(0, false)
 
 	spr(sprite,
-			entity[Position].x * tile_size_x + animation.offset_x,
-			entity[Position].y * tile_size_y + animation.offset_y)
+			entity[Position].x * TileSizeX + animation.offset_x,
+			entity[Position].y * TileSizeY + animation.offset_y)
 end)

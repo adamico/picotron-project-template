@@ -17,8 +17,8 @@ systems.move = World.system({Player, Position}, function(entity)
 
 	if animation.offset_t == 0 then
 		new_offset_x, new_offset_y = 0, 0
-		new_offset_x = tile_size_x * -dir.x
-		new_offset_y = tile_size_y * -dir.y
+		new_offset_x = TileSizeX * -dir.x
+		new_offset_y = TileSizeY * -dir.y
 		new_x = position.x + dir.x
 		new_y = position.y + dir.y
 	end

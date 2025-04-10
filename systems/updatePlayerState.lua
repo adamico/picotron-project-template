@@ -19,7 +19,7 @@ systems.updatePlayerState = World.system({Player}, function(entity)
 
 	if hover_t then hover_t = hover_t + 1 end
 
-	if btn(4) and canCapture(player.number, x, y) then
+	if btn(4) and CanCapture(player.number, x, y) then
 		fsm:capture()
 	else
 		fsm:stop_capturing(player)

@@ -8,7 +8,7 @@ systems.capture = World.system({Player, Position}, function(entity)
 
 	if not fsm:is("capturing") then return end
 
-	if canCapture(player.number, x, y) then -- TODO: account for size
+	if CanCapture(player.number, x, y) then -- TODO: account for size
 		add(tiles_to_capture, { x = x, y = y })
 	end
 
@@ -25,6 +25,6 @@ systems.capture = World.system({Player, Position}, function(entity)
 			--TODO: check for loot under captured tile
 		end
 		fsm:stop_capturing(player)
-		sfx(sounds.captured, 8)
+		sfx(Sounds.captured, 8)
 	end
 end)

@@ -4,14 +4,14 @@ systems.move_camera = World.system({ Follower, Position }, function(entity)
 	local within = follower.within
 
 	local cam_x = mid(
-		within.x1 * tile_size_x,
-		(player[Position].x + within.offset_x) * tile_size_x + player[Animation].offset_x,
-		within.x2 * tile_size_x
+		within.x1 * TileSizeX,
+		(player[Position].x + within.offset_x) * TileSizeX + player[Animation].offset_x,
+		within.x2 * TileSizeX
 	)
 	local cam_y = mid(
-		within.y1 * tile_size_y,
-		(player[Position].y + within.offset_y) * tile_size_y + player[Animation].offset_y,
-		within.y2 * tile_size_y
+		within.y1 * TileSizeY,
+		(player[Position].y + within.offset_y) * TileSizeY + player[Animation].offset_y,
+		within.y2 * TileSizeY
 	)
 
 	entity[Position].x = cam_x

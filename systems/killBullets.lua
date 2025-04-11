@@ -1,5 +1,7 @@
-local outOfMapBounds = function(pos)
-
+local outOfMapBounds = function(position, bounds)
+  return position.x/TileSizeX > bounds.x - 10
+    or position.y/TileSizeY > bounds.y
+    or position.x < 0 or position.y < 0
 end
 
 systems.killBullets = World.system({Bullet, Physics, Position}, function(bullet)
@@ -10,7 +12,7 @@ systems.killBullets = World.system({Bullet, Physics, Position}, function(bullet)
     y = Map:height()
   }
 
-  if flr(position.x/TileSizeX) > map_bounds.x - 10 or position.y/TileSizeY > map_bounds.y then
+  if outOfMapBounds(position, map_bounds) then
     World.remove(bullet)
     del(owner[Bullets].list, bullet)
   end

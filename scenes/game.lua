@@ -20,8 +20,6 @@ game.init = function()
 	include("systems/index.lua")
 end
 
--- main functions for Scenes
-
 game.update = function()
 	if play_music then music(0, 1000) play_music = false end
 	World.update()
@@ -34,7 +32,6 @@ game.update = function()
 	systems.killBullets()
 	systems.updatePlayerState()
 	systems.animatePlayer()
-	-- systems.soundizePlayer()
 end
 
 game.draw = function()

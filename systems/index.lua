@@ -3,9 +3,13 @@ local system_names = {
 	"capture",
 	"drawDebug",
 	"drawPlayer",
+	"drawBullets",
 	"handleInput",
+	"killBullets",
 	"move",
+	"moveBullets",
 	"moveCamera",
+	"shoot",
 	"updatePlayerState",
 }
 

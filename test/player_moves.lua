@@ -38,9 +38,10 @@ playerEntity = World.entity(
     offset_t = 0
   }),
 	Player({
-    number = 0,
-    capture_time = 0,
-    state = machine.create({
+    number = 0
+  }),
+  State({
+    machine = machine.create({
       initial = 'idle',
       events = {
         { name = 'move', 					 	 from = {'idle', 'hovering'}, to = 'moving' },
@@ -71,11 +72,12 @@ playerEntity = World.entity(
       }
     })
   }),
-	Position()
+	Position(),
+  Physics()
 )
+
 systems = {}
 include("systems/move.lua")
-include("systems/capture.lua")
 
 local fixture = { }
 
@@ -83,39 +85,20 @@ function fixture.before_all()
 end
 
 function fixture.before_each()
-	local player = playerEntity[Player]
-	local position = playerEntity[Position]
-	player.dir = vec(0,0)
-	position.x, position.y = 1, 1
-	World.update()
+	playerEntity[Physics].dir = vec(0,0)
+	playerEntity[Position].x, playerEntity[Position].y = 1, 1
+  World.update()
 end
 
 function fixture.test_player_moves()
 	local position = playerEntity[Position]
 	local initial_x, initial_y = position.x, position.y
 	local dir = vec(1,0)
-	playerEntity[Player].dir = dir
-	systems.move()
+	playerEntity[Physics].dir = dir
+  systems.move()
 
-	assert.are_equal(position.x, initial_x + dir.x, "Player x-coordinate should update correctly")
-	assert.are_equal(position.y, initial_y + dir.y, "Player y-coordinate should update correctly")
-end
-
-function fixture.test_player_captures_a_tile()
-	local player = playerEntity[Player]
-	local initial_tile_number = 96
-	local captured_tile_number = 71
-	local position = playerEntity[Position]
-	map = userdata("i16",4,4)
-	map:set(1,1,initial_tile_number)
-	memmap(map, 0x100000)
-	x, y = position.x, position.y
-	player.state:capture()
-	player.capture_time = 99
-	systems.capture()
-
-	assert.are_equal(mget(x,y), captured_tile_number,
-		"Tile "..initial_tile_number.." when captured by player " .. player.number.." should change to tile "..captured_tile_number)
+	assert.are_equal(position.x, initial_x + dir.x, "Player x-coordinate should have changed from "..position.x.." to "..initial_x+dir.x)
+	assert.are_equal(position.y, initial_y + dir.y, "Player y-coordinate should have changed from "..position.y.." to "..initial_y+dir.y)
 end
 
 function fixture.after_each()

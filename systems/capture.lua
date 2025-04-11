@@ -1,7 +1,7 @@
 systems.capture = World.system({Player, Position}, function(entity)
 	local position = entity[Position]
 	local player = entity[Player]
-	local fsm = player.state
+	local fsm = entity[State].machine
 	local x = position.x
 	local y = position.y
 	local tiles_to_capture = {}

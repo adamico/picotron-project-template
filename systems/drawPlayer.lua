@@ -1,4 +1,4 @@
-systems.drawPlayer = World.system({Player, Position, Sprite, Animation}, function(entity)
+systems.drawPlayer = World.system({Player, Position, Sprite}, function(entity)
 	local sprite = entity[Sprite].number
 	local animation = entity[Animation]
 	palt(30, true)

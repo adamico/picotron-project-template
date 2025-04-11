@@ -7,13 +7,16 @@ local canMoveTo = function(x, y)
 	return not checkTileFlag(x, y, 0)
 end
 
-systems.move = World.system({Player, Position}, function(entity)
-	local player = entity[Player]
+systems.move = World.system({Player, Physics, Position}, function(entity)
+	local physics = entity[Physics]
 	local position = entity[Position]
 	local animation = entity[Animation]
 	local new_offset_x, new_offset_y = animation.start_offset_x, animation.start_offset_y
 	local new_x, new_y = position.x, position.y
-	local dir = player.dir
+	local dir = physics.dir
+	local fsm = entity[State].machine
+
+	if fsm:is("shooting") then return end
 
 	if animation.offset_t == 0 then
 		new_offset_x, new_offset_y = 0, 0

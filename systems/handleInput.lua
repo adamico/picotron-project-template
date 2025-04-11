@@ -2,7 +2,7 @@
 local buttonsToDir = function()
 	local dir = vec(0,0)
 
-	if not btn(4) then
+	if not btn(4) and not btn(5) then
 		if btn(0) then
 			dir.x = -1
 			dir.y = 0
@@ -22,6 +22,6 @@ local buttonsToDir = function()
 end
 
 systems.handleInput = World.system({Player, Position}, function(entity)
-	local player = entity[Player]
-	player.dir = buttonsToDir() --TODO: account for player number
+	local physics = entity[Physics]
+	physics.dir = buttonsToDir() --TODO: account for player number
 end)

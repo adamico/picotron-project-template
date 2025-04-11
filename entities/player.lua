@@ -17,21 +17,32 @@ local playerEntity = World.entity(
   Player({
     number = 0,
     capture_time = 0,
+    shooting_time = 0,
+    shooting_dir = nil,
     alive = true,
-    protected = false,
-    state = machine.create({
-      initial = 'idle',
+    protected = false
+  }),
+  Physics({ xv = 0, yv = 0}),
+  Position({ x = 9, y = 9 }), -- TODO: set this for each level
+  Sprite({ number = 1 }),
+  Bullets({list = {}}),
+  State({
+    machine = machine.create({
+      initial = "idle",
       events = {
-        { name = 'move', 					 	 from = {'idle', 'hovering'}, to = 'moving' },
-        { name = 'stop_moving', 	 	 from = 'moving', 						to = 'hovering' },
-        { name = 'land', 					 	 from = 'hovering',						to = 'idle' },
-        { name = 'capture',  			 	 from = {'idle', 'hovering'},	to = 'capturing' },
-        { name = 'stop_capturing', 	 from = 'capturing',				  to = 'idle' }
+        { name = "move", 					 from = {"idle", "hovering"}, to = "moving" },
+        { name = "stop_moving", 	 from = "moving", 						to = "hovering" },
+        { name = "land", 					 from = "hovering",						to = "idle" },
+        { name = "capture",  			 from = {"idle", "hovering"},	to = "capturing" },
+        { name = "stop_capturing", from = "capturing",				  to = "idle" },
+        { name = "shoot",          from = {"idle"},             to = "shooting" },
+        { name = "stop_shooting",  from = {"shooting"},         to = "idle" }
       },
       callbacks = {
         onentermoving = function(self, event, from, to)
           hover_t = nil
           sfx(Sounds.start_engine, 7)
+          
         end,
         onafterland = function(self, event, from, to)
           sfx(Sounds.stop_engine, 7)
@@ -46,13 +57,14 @@ local playerEntity = World.entity(
         onafterstop_capturing = function(self, event, from, to, entity)
           entity.capture_time = 0
           sfx(-1, 8)
+        end,
+        onentershooting = function(self, event, from, to, player)
+          player.shooting_time = 60
+          sfx(52, 8)
         end
       }
     })
-  }),
-  Physics({ xv = 0, yv = 0}),
-  Position({ x = 9, y = 9 }), -- TODO: set this for each level
-  Sprite({ number = 1 })
+  })
 )
 
 return playerEntity

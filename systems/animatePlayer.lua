@@ -24,11 +24,11 @@ local stateForDir = function(dir)
 	return state
 end
 
-systems.animatePlayer = World.system({Sprite, Animation, Player}, function(entity)
+systems.animatePlayer = World.system({Player, Sprite, Animation}, function(entity)
 	-- local animation = entity[Animation]
 	local sprite = entity[Sprite]
 	local player = entity[Player]
-	local state = player.state.current
+	local state = entity[State].machine.current
 	local spriteNumbersForStates = {
 		idle = 0,
 		m_left = 1,
@@ -38,19 +38,20 @@ systems.animatePlayer = World.system({Sprite, Animation, Player}, function(entit
 		hovering = 8,
 		capturing = 5,
 		capturing2 = 6,
-		capturing3 = 7
+		capturing3 = 7,
+		shooting = 9 -- TODO: add muzzle flash with direction
 	}
 
 	local new_sprite_value
 	if state == 'moving' then
-		new_sprite_value = spriteNumbersForStates[stateForDir(player.dir)]
+		new_sprite_value = spriteNumbersForStates[stateForDir(entity[Physics].dir)]
 	elseif state == 'capturing' then
 		new_sprite_value = spriteNumbersForStates[stateForCapture(player.capture_time)]
 	else
 		new_sprite_value = spriteNumbersForStates[state]
 	end
 
-	sprite.number = new_sprite_value
+	sprite.number = new_sprite_value --TODO: readd player movement animation
 	-- local sprites = animation.sprites
 	-- local sprite_index = flr((t()*6)%4+1)
 	-- sprite.number = sprites[sprite_index]

@@ -35,14 +35,13 @@ local playerEntity = World.entity(
         { name = "land", 					 from = "hovering",						to = "idle" },
         { name = "capture",  			 from = {"idle", "hovering"},	to = "capturing" },
         { name = "stop_capturing", from = "capturing",				  to = "idle" },
-        { name = "shoot",          from = {"idle"},             to = "shooting" },
+        { name = "shoot",          from = {"idle", "hovering"}, to = "shooting" },
         { name = "stop_shooting",  from = {"shooting"},         to = "idle" }
       },
       callbacks = {
         onentermoving = function(self, event, from, to)
           hover_t = nil
           sfx(Sounds.start_engine, 7)
-          
         end,
         onafterland = function(self, event, from, to)
           sfx(Sounds.stop_engine, 7)
@@ -61,6 +60,9 @@ local playerEntity = World.entity(
         onentershooting = function(self, event, from, to, player)
           player.shooting_time = 60
           sfx(52, 8)
+        end,
+        onafterstop_shooting = function(self, event, from, to)
+          sfx(-1, 7)
         end
       }
     })

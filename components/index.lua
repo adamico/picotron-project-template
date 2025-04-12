@@ -4,7 +4,6 @@ Box = World.component()
 
 Physics = World.component({
 	xv = 0, yv = 0,
-	-- speed power
 })
 
 Follower = World.component({

@@ -21,8 +21,6 @@ end
 -- drawParticles()
 -- drawFloats()
 -- drawUi()
--- playerShoot(Player, Position) -- instantiate player bullet entities
--- monsterShoot(Player, Position) -- instantiate monster bullet entities
 -- collision()
 -- spawnMonsters()
 -- spawnLoot()

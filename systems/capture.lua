@@ -13,7 +13,7 @@ systems.capture = World.system({Player, Position}, function(entity)
 	end
 
 	if #tiles_to_capture > 0 then
-		player.capture_time = player.capture_time + 1 --TODO: account for capture power up
+		player.capture_time = player.capture_time + player.capture_power
 	end
 
 	if player.capture_time >= 100 then

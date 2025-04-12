@@ -11,6 +11,7 @@ Sounds = {
   stop_engine = 49,
   start_capturing = 50,
   captured = 51,
+  shooting = 52
 }
 
 PlayerTiles = {71, 79, 87, 95} -- dictionary of captured tiles number for each player

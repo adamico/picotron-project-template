@@ -8,15 +8,13 @@ local canMoveTo = function(x, y)
 end
 
 systems.move = World.system({Player, Physics, Position}, function(entity)
+	local player = entity[Player]
 	local physics = entity[Physics]
 	local position = entity[Position]
 	local animation = entity[Animation]
 	local new_offset_x, new_offset_y = animation.start_offset_x, animation.start_offset_y
 	local new_x, new_y = position.x, position.y
 	local dir = physics.dir
-	local fsm = entity[State].machine
-
-	if fsm:is("shooting") then return end
 
 	if animation.offset_t == 0 then
 		new_offset_x, new_offset_y = 0, 0
@@ -35,7 +33,7 @@ systems.move = World.system({Player, Physics, Position}, function(entity)
 		animation.offset_t = 1
 	end
 
-	local move_delta = 0.06 -- TODO: speed power
+	local move_delta = player.speed_power
 	animation.offset_t = max(animation.offset_t - move_delta, 0)
 	animation.offset_x = animation.start_offset_x * animation.offset_t
 	animation.offset_y = animation.start_offset_y * animation.offset_t

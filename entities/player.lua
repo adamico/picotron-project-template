@@ -17,8 +17,12 @@ local playerEntity = World.entity(
   Player({
     number = 0,
     capture_time = 0,
+    capture_power = 1,
     shooting_time = 0,
     shooting_dir = nil,
+    shooting_speed = 6,
+    shooting_rate = 60,
+    speed_power = 0.06,
     alive = true,
     protected = false
   }),
@@ -58,8 +62,8 @@ local playerEntity = World.entity(
           sfx(-1, 8)
         end,
         onentershooting = function(self, event, from, to, player)
-          player.shooting_time = 60
-          sfx(52, 8)
+          player.shooting_time = player.shooting_rate
+          sfx(Sounds.shooting, 8)
         end,
         onafterstop_shooting = function(self, event, from, to)
           sfx(-1, 7)

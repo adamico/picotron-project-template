@@ -24,7 +24,7 @@ local stateForDir = function(dir)
 	return state
 end
 
-systems.animatePlayer = World.system({Player, Sprite, Animation}, function(entity)
+systems.animatePlayer = World.system({Player}, function(entity)
 	-- local animation = entity[Animation]
 	local sprite = entity[Sprite]
 	local capture_time = entity[Capture].time

@@ -1,6 +1,7 @@
 local game = {}
 
 Map = nil
+Enemies = {}
 
 local play_music = false
 
@@ -29,6 +30,7 @@ game.update = function()
 	systems.moveBullets()
 	systems.killBullets()
 	systems.updatePlayerState()
+	systems.spawnEnemies()
 	systems.animatePlayer()
 end
 
@@ -37,8 +39,10 @@ game.draw = function()
 	systems.move_camera()
 	pal(0, false)
 	map(0, 0, 0, 0, 48, 48, 0, TileSizeX, TileSizeY)
+	systems.drawSpawners()
 	systems.drawBullets()
 	systems.drawPlayer()
+	systems.drawEnemies()
 
 
 	camera()

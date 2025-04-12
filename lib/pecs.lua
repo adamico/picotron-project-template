@@ -77,7 +77,7 @@ do
 		local queries = {}
 		local systems = {}
 		local update_stack = {}
-		
+
 		function query(filter)
 			-- filter already exists
 			local cached = find(queries, filter, function(a, _, b)

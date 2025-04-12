@@ -4,12 +4,15 @@ local system_names = {
 	"drawDebug",
 	"drawPlayer",
 	"drawBullets",
+	"drawEnemies",
+	"drawSpawners",
 	"handleInput",
 	"killBullets",
 	"move",
 	"moveBullets",
 	"moveCamera",
 	"shoot",
+	"spawnEnemies",
 	"updatePlayerState",
 }
 
@@ -22,7 +25,6 @@ end
 -- drawFloats()
 -- drawUi()
 -- collision()
--- spawnMonsters()
 -- spawnLoot()
 -- checkPlayerProtected()
 -- checkPlayerForm()

@@ -5,6 +5,9 @@ local cameraLeft = -2.5 * TileSizeX
 local cameraTop = -2 * TileSizeY
 local cameraWidth = 7.5 * TileSizeX
 local cameraHeight = 19 * TileSizeY
+
+local spawner = require("spawner")
+
 World.entity(
   {},
   Box({ x = cameraLeft, y = cameraTop, w = cameraWidth, h = cameraHeight }),

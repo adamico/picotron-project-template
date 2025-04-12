@@ -59,9 +59,20 @@ local function format_timestamp(timestamp)
 	return string.format("%02d:%02d.%03d", minutes, seconds, milliseconds)
 end
 
+local entry_lines = 1
+
 -- Formats a log entry with level color, timestamp, and message
 local function format_log_entry(level, timestamp, message)
-	return log_level_colors[level] .. format_timestamp(timestamp) .. "\t" .. message
+	local split_position = 85
+	local splitted_message = ""
+	if #message >= split_position then
+		splitted_message = sub(message, 1, split_position-1).."\n"
+		splitted_message = splitted_message..sub(message, split_position)
+		entry_lines = 2
+	else
+		splitted_message = message
+	end
+	return log_level_colors[level] .. format_timestamp(timestamp) .. "\t" .. splitted_message
 end
 
 -- Logs a message if it meets the current log level
@@ -86,7 +97,8 @@ local function log_message(level, message, ...)
 			entry = {
 				timestamp = timestamp,
 				level = level,
-				message = formatted_message
+				message = formatted_message,
+				lines = entry_lines
 			},
 			presentation = presentation
 		})

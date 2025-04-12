@@ -54,6 +54,9 @@ function _init()
 	-- Event listener to handle incoming log entries
 	on_event("entry", function(entry)
 		table.insert(lines, entry.presentation)
+		if entry.entry.lines > 1 then
+			table.insert(lines, "")
+		end
 
 		-- Ensure the log display doesn't exceed 500 lines
 		while (#lines > 500) do

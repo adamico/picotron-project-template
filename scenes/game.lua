@@ -1,5 +1,3 @@
-local pecs = require("pecs")
-
 local game = {}
 
 Map = nil

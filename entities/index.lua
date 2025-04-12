@@ -6,7 +6,8 @@ local cameraTop = -2 * TileSizeY
 local cameraWidth = 7.5 * TileSizeX
 local cameraHeight = 19 * TileSizeY
 World.entity(
-  { name = "Camera" },
+  {},
+  Box({ x = cameraLeft, y = cameraTop, w = cameraWidth, h = cameraHeight }),
   Follower({
     following = playerEntity,
     within = {
@@ -14,11 +15,10 @@ World.entity(
       y1 = -5, offset_y = -5.125, y2 = 33
     }
   }),
-  Position({ x = 0, y = 0 }),
-  Box({ x = cameraLeft, y = cameraTop, w = cameraWidth, h = cameraHeight })
+  Position({ x = 0, y = 0 })
 )
+
 -- loot (Position, Sprite/Drawable?, Container, Owner/Contained?, Health)
--- bullet (Position, Health?, Animation, Physics, Sprite/Drawable?, Owner/Contained?, Power)
 -- explosion (Position, Health?, Animation, Sprite/Drawable?)
 -- monsters (Position, Physics, Animation, Health, Box/Size, Sprite/Drawable?, Container, Ai, Shoot, Capture?, Control?)
 -- exit? (Position, Animation, Sprite/Drawable?)

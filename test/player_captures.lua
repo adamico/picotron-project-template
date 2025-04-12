@@ -19,67 +19,21 @@
 
 local assert = require("assert")
 local log = require("log")
-local pecs = require("pecs")
-local machine = require("statemachine")
 
 include("constants.lua")
+include("lib/pecs.lua")
 
 World = pecs()
-
 include("components/index.lua")
-playerEntity = World.entity(
-  { name = "Player" },
-  Animation({
-    offset_x = 0,
-    offset_y = 0,
-    start_offset_x = 0,
-    start_offset_y = 0,
-    offset_t = 0
-  }),
-	Player({
-    number = 0,
-    capture_time = 0
-  }),
-  State({
-    machine = machine.create({
-      initial = 'idle',
-      events = {
-        { name = 'move', 					 	 from = {'idle', 'hovering'}, to = 'moving' },
-        { name = 'stop_moving', 	 	 from = 'moving', 						to = 'hovering' },
-        { name = 'land', 					 	 from = 'hovering',						to = 'idle' },
-        { name = 'capture',  			 	 from = {'idle', 'hovering'},	to = 'capturing' },
-        { name = 'stop_capturing', 	 from = 'capturing',				  to = 'idle' }
-      },
-      callbacks = {
-        onentermoving = function(self, event, from, to)
-          hover_t = nil
-          sfx(Sounds.start_engine, 7)
-        end,
-        onafterland = function(self, event, from, to)
-          sfx(Sounds.stop_engine, 7)
-        end,
-        onenterhovering = function(self, event, from, to)
-          hover_t = 0
-        end,
-        onaftercapture = function (self, event, from, to)
-          sfx(Sounds.start_capturing, 8)
-          sfx(-1, 7)
-        end,
-        onafterstop_capturing = function(self, event, from, to, entity)
-          entity[Capture].time = 0
-          sfx(-1, 8)
-        end
-      }
-    })
-  }),
-	Position(),
-  Physics()
-)
+add_module_path("entities/")
+
+local playerEntity = require("player")
 
 systems = {}
 include("systems/capture.lua")
 
 local fixture = { }
+local initial_tile_number = 96
 
 function fixture.before_all()
 end
@@ -95,18 +49,20 @@ function fixture.before_each()
 end
 
 function fixture.test_player_captures_a_tile()
-	local player = playerEntity[Player]
+	local player_number = playerEntity[Player].number
   local fsm = playerEntity[State].machine
-	local initial_tile_number = 96
-	local captured_tile_number = 71
+	local captured_tile_number = PlayerTiles[player_number]
 	local position = playerEntity[Position]
 	x, y = position.x, position.y
+
 	fsm:capture()
-	playerEntity[Capture].time = 99
+	playerEntity[Capture].time = 100
 	systems.capture()
+  log.info("Capture time: "..pod(playerEntity[Capture].time))
 
 	assert.are_equal(mget(x,y), captured_tile_number,
-		"Tile "..initial_tile_number.." when captured by player " .. player.number.." should change to tile "..captured_tile_number)
+		"Tile "..mget(x,y).." when captured by player " 
+    .. player_number.." should change to tile "..captured_tile_number)
 end
 
 function fixture.after_each()

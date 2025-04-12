@@ -14,6 +14,6 @@ systems.killBullets = World.system({Bullet, Physics, Position}, function(bullet)
 
   if outOfMapBounds(position, map_bounds) then
     World.remove(bullet)
-    del(owner[Bullets].list, bullet)
+    del(owner[Shoot].bullets, bullet)
   end
 end)

@@ -2,36 +2,24 @@ local machine = require("statemachine")
 
 local playerWidth, playerHeight = 15, 15
 local playerEntity = World.entity(
-  { name = "Player" },
+  {},
   Animation({
     offset_x = 0,
     offset_y = 0,
     start_offset_x = 0,
     start_offset_y = 0,
     offset_t = 0,
-    flip_h = false,
-    flip_v = false,
     sprites = {1, 2, 3, 4},
   }),
-  Box({ x = 0, y = 0, w = playerWidth, h = playerHeight} ),
-  Capture({
-    time = 0,
-    power = 1
-  }),
-  Player({
-    number = 0,
-    shooting_time = 0,
-    shooting_dir = nil,
-    shooting_speed = 6,
-    shooting_rate = 60,
-    speed_power = 0.06,
-    alive = true,
-    protected = false
-  }),
-  Physics({ xv = 0, yv = 0}),
+  Box({x = 0, y = 0, w = playerWidth, h = playerHeight}),
+  Capture({time = 0, power = 1}),
+  Control(),
+  InGrid(),
+  Physics({xv = 0, yv = 0, speed = 0.06, dir = vec(0,0)}),
+  Player({number = 1}),
   Position({ x = 9, y = 9 }), -- TODO: set this for each level
-  Sprite({ number = 1 }),
-  Bullets({list = {}}),
+  Shoot({time = 0, dir = nil, speed = 6, rate = 60, bullets = {}}),
+  Sprite({number = 1}),
   State({
     machine = machine.create({
       initial = "idle",
@@ -63,8 +51,8 @@ local playerEntity = World.entity(
           entity[Capture].time = 0
           sfx(-1, 8)
         end,
-        onentershooting = function(self, event, from, to, player)
-          player.shooting_time = player.shooting_rate
+        onentershooting = function(self, event, from, to, entity)
+          entity[Shoot].time = entity[Shoot].rate
           sfx(Sounds.shooting, 8)
         end,
         onafterstop_shooting = function(self, event, from, to)

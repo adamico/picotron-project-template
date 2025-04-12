@@ -19,62 +19,14 @@
 
 local assert = require("assert")
 local log = require("log")
-local pecs = require("pecs")
-local machine = require("statemachine")
-
+include("lib/pecs.lua")
 include("constants.lua")
 
 World = pecs()
 
-
 include("components/index.lua")
-playerEntity = World.entity(
-  { name = "Player" },
-  Animation({
-    offset_x = 0,
-    offset_y = 0,
-    start_offset_x = 0,
-    start_offset_y = 0,
-    offset_t = 0
-  }),
-	Player({
-    number = 0
-  }),
-  State({
-    machine = machine.create({
-      initial = 'idle',
-      events = {
-        { name = 'move', 					 	 from = {'idle', 'hovering'}, to = 'moving' },
-        { name = 'stop_moving', 	 	 from = 'moving', 						to = 'hovering' },
-        { name = 'land', 					 	 from = 'hovering',						to = 'idle' },
-        { name = 'capture',  			 	 from = {'idle', 'hovering'},	to = 'capturing' },
-        { name = 'stop_capturing', 	 from = 'capturing',				  to = 'idle' }
-      },
-      callbacks = {
-        onentermoving = function(self, event, from, to)
-          hover_t = nil
-          sfx(Sounds.start_engine, 7)
-        end,
-        onafterland = function(self, event, from, to)
-          sfx(Sounds.stop_engine, 7)
-        end,
-        onenterhovering = function(self, event, from, to)
-          hover_t = 0
-        end,
-        onaftercapture = function (self, event, from, to)
-          sfx(Sounds.start_capturing, 8)
-          sfx(-1, 7)
-        end,
-        onafterstop_capturing = function(self, event, from, to, entity)
-          entity[Capture].time = 0
-          sfx(-1, 8)
-        end
-      }
-    })
-  }),
-	Position(),
-  Physics()
-)
+add_module_path("entities/")
+playerEntity = require("player")
 
 systems = {}
 include("systems/move.lua")

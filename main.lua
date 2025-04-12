@@ -27,6 +27,8 @@ include("constants.lua")
 include("lib/require.lua")
 include("configuration.lua")
 
+include("lib/pecs.lua")
+
 add_module_path("lib/")
 add_module_path("scenes/")
 

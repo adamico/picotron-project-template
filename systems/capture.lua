@@ -1,6 +1,6 @@
-systems.capture = World.system({Player, Position}, function(entity)
+systems.capture = World.system({Capture, Position}, function(entity)
 	local position = entity[Position]
-	local player = entity[Player]
+	local player_number = entity[Player].number
 	local capture_time = entity[Capture].time
 	local capture_power = entity[Capture].power
 	local fsm = entity[State].machine
@@ -10,7 +10,8 @@ systems.capture = World.system({Player, Position}, function(entity)
 
 	if not fsm:is("capturing") then return end
 
-	if CanCapture(player.number, x, y) then -- TODO: account for size
+	-- TODO: account for size
+	if CanCapture(player_number, x, y) then -- TODO: remove this?
 		add(tiles_to_capture, { x = x, y = y })
 	end
 
@@ -22,7 +23,7 @@ systems.capture = World.system({Player, Position}, function(entity)
 		for tile in all(tiles_to_capture) do
 			local tx = tile.x
 			local ty = tile.y
-			mset(tx, ty, PlayerTiles[player.number + 1])
+			mset(tx, ty, PlayerTiles[player_number])
 			--TODO: calculate score, current player +1 and tile owner -1
 			--TODO: check for loot under captured tile
 		end

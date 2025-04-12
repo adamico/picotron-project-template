@@ -7,8 +7,7 @@ local canMoveTo = function(x, y)
 	return not checkTileFlag(x, y, 0)
 end
 
-systems.move = World.system({Player, Physics, Position}, function(entity)
-	local player = entity[Player]
+systems.move = World.system({InGrid, Physics, Position}, function(entity)
 	local physics = entity[Physics]
 	local position = entity[Position]
 	local animation = entity[Animation]
@@ -33,7 +32,7 @@ systems.move = World.system({Player, Physics, Position}, function(entity)
 		animation.offset_t = 1
 	end
 
-	local move_delta = player.speed_power
+	local move_delta = physics.speed
 	animation.offset_t = max(animation.offset_t - move_delta, 0)
 	animation.offset_x = animation.start_offset_x * animation.offset_t
 	animation.offset_y = animation.start_offset_y * animation.offset_t

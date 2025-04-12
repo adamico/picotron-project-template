@@ -66,7 +66,7 @@ playerEntity = World.entity(
           sfx(-1, 7)
         end,
         onafterstop_capturing = function(self, event, from, to, entity)
-          entity.capture_time = 0
+          entity[Capture].time = 0
           sfx(-1, 8)
         end
       }
@@ -90,7 +90,7 @@ function fixture.before_each()
 	memmap(map, 0x100000)
   playerEntity[Physics].dir = vec(0,0)
 	playerEntity[Position].x, playerEntity[Position].y = 1, 1
-  playerEntity[Player].capture_time = 0
+  playerEntity[Capture].time = 0
   World.update()
 end
 
@@ -102,7 +102,7 @@ function fixture.test_player_captures_a_tile()
 	local position = playerEntity[Position]
 	x, y = position.x, position.y
 	fsm:capture()
-	player.capture_time = 99
+	playerEntity[Capture].time = 99
 	systems.capture()
 
 	assert.are_equal(mget(x,y), captured_tile_number,

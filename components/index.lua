@@ -21,6 +21,8 @@ Animation = World.component()
 Bullets = World.component({list = {}})
 
 BelongsTo = World.component()
+Capture = World.component()
+
 -- Capture (move some player attributes here, add power)
 -- Shoot
 -- Drawable (add a type and get rid of sprite?)

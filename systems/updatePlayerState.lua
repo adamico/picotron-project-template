@@ -41,7 +41,7 @@ systems.updatePlayerState = World.system({Player}, function(entity)
 	if btn(4) and CanCapture(player.number, x, y) then
 		fsm:capture()
 	else
-		fsm:stop_capturing(player)
+		fsm:stop_capturing(entity)
 	end
 
   if player.shooting_time < 0 then player.shooting_time = 0 end

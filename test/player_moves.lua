@@ -66,7 +66,7 @@ playerEntity = World.entity(
           sfx(-1, 7)
         end,
         onafterstop_capturing = function(self, event, from, to, entity)
-          entity.capture_time = 0
+          entity[Capture].time = 0
           sfx(-1, 8)
         end
       }

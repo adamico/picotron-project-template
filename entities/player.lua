@@ -14,10 +14,12 @@ local playerEntity = World.entity(
     sprites = {1, 2, 3, 4},
   }),
   Box({ x = 0, y = 0, w = playerWidth, h = playerHeight} ),
+  Capture({
+    time = 0,
+    power = 1
+  }),
   Player({
     number = 0,
-    capture_time = 0,
-    capture_power = 1,
     shooting_time = 0,
     shooting_dir = nil,
     shooting_speed = 6,
@@ -58,7 +60,7 @@ local playerEntity = World.entity(
           sfx(-1, 7)
         end,
         onafterstop_capturing = function(self, event, from, to, entity)
-          entity.capture_time = 0
+          entity[Capture].time = 0
           sfx(-1, 8)
         end,
         onentershooting = function(self, event, from, to, player)

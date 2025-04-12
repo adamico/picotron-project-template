@@ -13,6 +13,7 @@ systems.drawDebug = World.system({Position, Player, Physics, Animation, Sprite},
 	add(contents, {"text", {text="Sprite: "..pod(sprite.number)}})
 	add(contents, {"text", {text="State: "..pod(state)}})
 	add(contents, {"text", {text="Shooting time: "..pod(player.shooting_time)}})
+	add(contents, {"text", {text="Capturing time: "..pod(entity[Capture].time)}})
 	-- add(contents, {"text", {text="Shooting dir: "..pod(player.shooting_dir)}})
 
 	add(contents, {"text", {text="bullets#"..pod(#bullets)}})

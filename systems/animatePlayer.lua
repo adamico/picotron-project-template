@@ -27,7 +27,7 @@ end
 systems.animatePlayer = World.system({Player, Sprite, Animation}, function(entity)
 	-- local animation = entity[Animation]
 	local sprite = entity[Sprite]
-	local player = entity[Player]
+	local capture_time = entity[Capture].time
 	local state = entity[State].machine.current
 	local spriteNumbersForStates = {
 		idle = 0,
@@ -46,7 +46,7 @@ systems.animatePlayer = World.system({Player, Sprite, Animation}, function(entit
 	if state == 'moving' then
 		new_sprite_value = spriteNumbersForStates[stateForDir(entity[Physics].dir)]
 	elseif state == 'capturing' then
-		new_sprite_value = spriteNumbersForStates[stateForCapture(player.capture_time)]
+		new_sprite_value = spriteNumbersForStates[stateForCapture(capture_time)]
 	else
 		new_sprite_value = spriteNumbersForStates[state]
 	end

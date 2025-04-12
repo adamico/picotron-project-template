@@ -58,11 +58,26 @@ function fixture.test_player_captures_a_tile()
 	fsm:capture()
 	playerEntity[Capture].time = 100
 	systems.capture()
-  log.info("Capture time: "..pod(playerEntity[Capture].time))
 
 	assert.are_equal(mget(x,y), captured_tile_number,
 		"Tile "..mget(x,y).." when captured by player " 
     .. player_number.." should change to tile "..captured_tile_number)
+end
+
+function fixture.test_player_cannot_capture_his_own_tiles()
+	local player_number = playerEntity[Player].number
+  local fsm = playerEntity[State].machine
+	local captured_tile_number = PlayerTiles[player_number]
+	local position = playerEntity[Position]
+	x, y = position.x, position.y
+
+	mset(x, y, captured_tile_number)
+	fsm:capture()
+	playerEntity[Capture].time = 100
+	systems.capture()
+
+	assert.is_false(fsm:is("capturing"),
+		"Player"..player_number.." should not enter capture mode when on a owned tile")
 end
 
 function fixture.after_each()

@@ -48,3 +48,53 @@ function get_pid_by_name(name)
 
 	return -1
 end
+
+
+ButtonsToDir = function()
+	local dir = vec(0,0)
+	if btn(0) then
+		dir.x = -1
+		dir.y = 0
+	elseif btn(1) then
+		dir.x = 1
+		dir.y = 0
+	elseif btn(2) then
+		dir.x = 0
+		dir.y = -1
+	elseif btn(3) then
+		dir.x = 0
+		dir.y = 1
+	end
+	return dir
+end
+
+CanCapture = function(player_number, x, y)
+  local tile_number = mget(x, y)
+  return tile_number ~= PlayerTiles[player_number]
+end
+
+
+ShallowMerge = function(t1, t2)
+  local t3 = {}
+  for k,v in pairs(t1) do
+    t3[k] = v
+  end
+  for k,v in pairs(t2) do
+    t3[k] = v
+  end
+  return t3
+end
+
+ShallowCopy = function(t)
+  local t2 = {}
+  for k,v in pairs(t) do
+    t2[k] = v
+  end
+  return t2
+end
+
+AllElementsBut = function(array, element)
+  local array2 = ShallowCopy(array)
+  del(array2, element)
+  return array2
+end

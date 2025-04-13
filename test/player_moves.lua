@@ -47,7 +47,7 @@ function fixture.test_player_moves()
 	local initial_x, initial_y = position.x, position.y
 	local dir = vec(1,0)
 	playerEntity[Physics].dir = dir
-  systems.move()
+  systems.moveActors()
 
 	assert.are_equal(position.x, initial_x + dir.x, "Player x-coordinate should have changed from "..position.x.." to "..initial_x+dir.x)
 	assert.are_equal(position.y, initial_y + dir.y, "Player y-coordinate should have changed from "..position.y.." to "..initial_y+dir.y)

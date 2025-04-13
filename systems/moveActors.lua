@@ -7,13 +7,24 @@ local canMoveTo = function(x, y)
 	return not checkTileFlag(x, y, 0)
 end
 
-systems.move = World.system({InGrid, Physics, Position}, function(entity)
+systems.moveActors = World.system({Actor, Physics, Position}, function(entity)
+	local animation = entity[Animation]
 	local physics = entity[Physics]
 	local position = entity[Position]
-	local animation = entity[Animation]
+	local state = entity[State]
+
+	local fsm = state.machine
 	local new_offset_x, new_offset_y = animation.start_offset_x, animation.start_offset_y
 	local new_x, new_y = position.x, position.y
 	local dir = physics.dir
+
+	if entity[Hover] then
+		if hover_t and hover_t >= 30 then
+			fsm:land()
+			hover_t = nil
+		end
+		if hover_t then hover_t = hover_t + 1 end
+	end
 
 	if animation.offset_t == 0 then
 		new_offset_x, new_offset_y = 0, 0

@@ -1,4 +1,4 @@
-systems.move_camera = World.system({ Follower, Position }, function(entity)
+systems.move_camera = World.system({Follower, Position}, function(entity)
 	local follower = entity[Follower]
 	local player = follower.following
 	local within = follower.within

@@ -1,0 +1,6 @@
+-- loot (Position, Sprite/Drawable?, Container, Owner/Contained?, Health)
+-- explosion (Position, Health?, Animation, Sprite/Drawable?)
+-- monsters (Position, Physics, Animation, Health, Box/Size, Sprite/Drawable?, Container, Ai, Shoot, Capture?, Control?)
+-- exit? (Position, Animation, Sprite/Drawable?)
+-- particle (Position, Physics, Particle, Health, Color, Sprite/Drawable)
+-- float (Position, Color, Label)

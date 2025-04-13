@@ -12,10 +12,23 @@ end
 
 game.init = function()
 	systems = {}
+	players = {}
 	game.initLevel()
 	World = pecs()
-	include("components/index.lua")
-	include("entities/index.lua")
+	include("components.lua")
+	include("factories/player.lua")
+	include("factories/camera.lua")
+	include("factories/spawner.lua")
+
+	local player = Player:new()
+	local playerEntity = player:makeEntity(1, "Player1")
+
+	local camera = Camera:new()
+	camera:makeEntity(playerEntity)
+
+	local spawner = SpawnerClass:new()
+	spawner:makeEntity(15, 15, 64)
+
 	include("systems/index.lua")
 end
 

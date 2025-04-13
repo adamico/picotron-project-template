@@ -1,3 +1,5 @@
+include("factories/bullet.lua")
+
 systems.shoot = World.system({Shoot, Position}, function(entity)
   local position = entity[Position]
   local shoot = entity[Shoot]
@@ -18,22 +20,9 @@ systems.shoot = World.system({Shoot, Position}, function(entity)
   end
 
   if shoot.time == shooting_rate then
-    local bullet = World.entity(
-      {name = "bullet"},
-      Bullet(),
-      Position({
-        x = (position.x + 0.5 * shoot.dir.x)*TileSizeX,
-        y = (position.y + 0.5 * shoot.dir.y)*TileSizeY
-      }),
-      Sprite({number = 10}),
-      Physics({
-        dir = shoot.dir,
-        vx = shooting_speed, vy = shooting_speed
-      }),
-      BelongsTo(entity)
-    )
-    add(bullets, bullet)
+    local bullet = BulletClass:new()
+    local bulletEntity = bullet:makeEntity(position, shoot, entity)
+    add(bullets, bulletEntity)
   end
-
   shoot.time = max(shoot.time - 1, 0)
 end)

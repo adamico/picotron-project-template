@@ -4,7 +4,6 @@ local system_names = {
 	"drawDebug",
 	"drawActors",
 	"drawBullets",
-	"drawEnemies",
 	"drawSpawners",
 	"handleInput",
 	"killBullets",

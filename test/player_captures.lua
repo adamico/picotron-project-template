@@ -27,7 +27,7 @@ World = pecs()
 include("components/index.lua")
 add_module_path("entities/")
 
-local playerEntity = require("player")
+local playerEntity = require("factories.player")
 
 systems = {}
 include("systems/capture.lua")

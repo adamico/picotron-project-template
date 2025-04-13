@@ -1,4 +1,8 @@
+Timer = require("timer")
+local log = require("log")
 local game = {}
+
+HoverTimer = Timer.new()
 
 Map = nil
 Enemies = {}
@@ -32,7 +36,10 @@ game.init = function()
 	include("systems/index.lua")
 end
 
+local lastTickTime = time()
 game.update = function()
+	local tickTime = time()
+	local dt = tickTime - lastTickTime
 	if play_music then music(0, 1000) play_music = false end
 	World.update()
 	pgui:refresh()
@@ -45,6 +52,9 @@ game.update = function()
 	systems.killBullets()
 	systems.spawnEnemies()
 	systems.animateActors()
+	Timer.update(dt)
+	HoverTimer:update(dt)
+	lastTickTime = tickTime
 end
 
 game.draw = function()

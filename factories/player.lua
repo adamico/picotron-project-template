@@ -1,5 +1,6 @@
 local machine = require("statemachine")
 local class = require 'lowerclass'
+Timer = require("timer")
 
 Player = class('player')
 
@@ -111,8 +112,8 @@ function Player:makeEntity(number, name)
             sfx(player_sounds.stop_engine, 7)
           end,
           onenterhovering = function(self, event, from, to)
-            hover_t = 0
             can_play_start_engine = true
+            HoverTimer:after(0.5, function() self:land() end)
           end,
           onaftercapture = function (self, event, from, to)
             sfx(player_sounds.start_capturing, 8)
@@ -122,9 +123,9 @@ function Player:makeEntity(number, name)
             entity[Capture].time = 0
             sfx(-1, 8)
           end,
-          onentershooting = function(self, event, from, to, entity)
-            entity[Shoot].time = entity[Shoot].rate
+          onentershooting = function(self, event, from, to, shoot_component)
             sfx(player_sounds.shooting, 8)
+            shoot_component.time = shoot_component.rate
           end,
           onafterstop_shooting = function(self, event, from, to)
             sfx(-1, 7)

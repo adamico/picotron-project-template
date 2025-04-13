@@ -7,8 +7,8 @@ function BulletClass:makeEntity(position_component, shoot_component, owner_entit
     {name = "bullet"},
     Bullet(),
     Position({
-      x = (position.x + 0.5 * shoot_component.dir.x)*TileSizeX,
-      y = (position.y + 0.5 * shoot_component.dir.y)*TileSizeY
+      x = (position_component.x + 0.5 * shoot_component.dir.x)*TileSizeX,
+      y = (position_component.y + 0.5 * shoot_component.dir.y)*TileSizeY
     }),
     Sprite({number = 10}),
     Physics({

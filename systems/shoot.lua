@@ -8,12 +8,11 @@ systems.shoot = World.system({Shoot, Position}, function(entity)
 	local fsm = state.machine
   local bullets = shoot.bullets
   local shooting_rate = shoot.rate
-  local shooting_speed = shoot.speed
 
   if btn(5) and shoot.time == 0 then
     shoot.dir = ButtonsToDir()
     if shoot.dir.x ~= 0 or shoot.dir.y ~=0 then
-      fsm:shoot(entity)
+      fsm:shoot(shoot)
     end
   else
     fsm:stop_shooting()

@@ -110,7 +110,7 @@ screen_c_y = Screen.h/2
 PlayerTiles = {71, 79, 87, 95} -- dictionary of captured tiles number for each player
 
 
-Title = "GeoArena"
-Version = "0.1"
-Author = "kc00l"
-Date = date("2020-%Y")
+GameTitle = "GeoArena"
+GameVersion = "0.1"
+GameAuthor = "kc00l"
+GameDate = date("2020-%Y")

@@ -29,13 +29,15 @@ add_module_path("src/factories/")
 local log = require("log")
 
 -- Scene Manager
+local SceneManager = require('scene_manager')
+
 Scene = 0
 NextScene = 0
 
-local shift = require("shift")
-local title = require("title")
-local game = require("game")
 local gameover = require("gameover")
+local play 		 = require("play")
+local shift    = require("shift")
+local title    = require("title")
 
 if configuration.log.enabled then
 	log.set_level(configuration.log.level)
@@ -49,7 +51,8 @@ function _init()
 
 	local success, err = pcall(function()
 		-- Initialization logic here
-		game.init()
+		Game = SceneManager:new()
+		Game:gotoState('Title')
 	end)
 
 	if not success then
@@ -65,13 +68,7 @@ function _update()
 	log.trace("> Entering _update()")
 
 	local success, err = pcall(function()
-		-- Update logic here
-		if Scene == 0 then title.update() end
-		if Scene == 1 then game.update() end
-		if Scene == 2 then gameover.update() end
-		if Scene == 4 then shift.update() end
-
-		shift.maybe_update_fade()
+		Game:update()
 	end)
 
 	if not success then
@@ -87,12 +84,7 @@ function _draw()
 	log.trace("> Entering _draw()")
 
 	local success, err = pcall(function()
-		-- Draw logic here
-		if Scene == 0 then title.draw() end
-		if Scene == 1 then game.draw() end
-		if Scene == 2 then gameover.draw() end
-
-		shift.maybe_fade()
+		Game:draw()
 	end)
 
 	if not success then

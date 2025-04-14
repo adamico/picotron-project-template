@@ -34,10 +34,12 @@ systems.capture = World.system({Capture}, function(entity)
 		if capture.time == 100 then
 			fsm:stop_capturing(entity)
 			sfx(sound.captured, 8)
+
 			for tile in all(tiles_to_capture) do
 				local tx = tile.x
 				local ty = tile.y
 				mset(tx, ty, PlayerTiles[actor_number])
+				entity[Score].captured = entity[Score].captured +1
 				--TODO: calculate score, current player +1 and tile owner -1
 				--TODO: check for loot under captured tile
 			end

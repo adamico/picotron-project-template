@@ -76,6 +76,7 @@ function Player:makeEntity(number, name)
     Hover(),
     Physics({xv = 0, yv = 0, speed = 0.06, dir = vec(0,0)}),
     Position({ x = 9, y = 9 }), -- TODO: set this for each level
+    Score({ captured = 0 }),
     Shoot({time = 0, dir = nil, speed = 6, rate = 60, bullets = {}}),
     Sound(player_sounds),
     Sprite({number = 0}),

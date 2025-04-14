@@ -5,6 +5,7 @@ local system_names = {
 	"drawActors",
 	"drawBullets",
 	"drawSpawners",
+	"drawUI",
 	"handleInput",
 	"killBullets",
 	"moveActors",
@@ -12,7 +13,7 @@ local system_names = {
 	"moveCamera",
 	"shoot",
 	"spawnEnemies",
-	"updateActorState",
+	"updateActorState"
 }
 
 for name in all(system_names) do

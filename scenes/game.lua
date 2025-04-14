@@ -68,6 +68,7 @@ game.draw = function()
 
 	camera()
 	systems.drawDebug()
+	systems.drawUI()
 	pgui:draw()
 end
 

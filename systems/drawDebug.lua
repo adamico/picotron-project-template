@@ -17,6 +17,8 @@ systems.drawDebug = World.system({Position, Physics, Animation, Sprite, Shoot, C
 	add(contents, {"text", {text="Px/y: "..pod(position.x).."/"..pod(position.y)}})
 	add(contents, {"text", {text="dirx/y: "..pod(dir.x).."/"..pod(dir.y)}})
 	add(contents, {"text", {text="State: "..pod(state)}})
+	if Map then	add(contents, {"text", {text="Uncaptured: "..count(Map, 60)}}) end
+
 	-- add(contents, {"text", {text="animation offset t: "..pod(animation.offset_t)}})
 	-- add(contents, {"text", {text="Sprite: "..pod(sprite.number)}})
 	-- add(contents, {"text", {text="Shooting time: "..pod(shoot.time)}})

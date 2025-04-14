@@ -17,20 +17,14 @@
 	along with this program. If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-Title = "GeoArena"
-Version = "0.1"
-Author = "kc00l"
-Date = date("2020-%Y")
-
 include("globals.lua")
-include("constants.lua")
 include("lib/require.lua")
 include("configuration.lua")
 
-include("lib/pecs.lua")
-
 add_module_path("lib/")
-add_module_path("scenes/")
+add_module_path("src/")
+add_module_path("src/scenes/")
+add_module_path("src/factories/")
 
 local log = require("log")
 

@@ -14,7 +14,7 @@ pgui_components.unknown = {fns={}, data={text="?",_id="unknown"}}
 pgui_components.unknown.fns.draw = function(self) print("[?]", self.pos.x, self.pos.y, 8) end
 
 pgui_components.placeholder = {fns={}, data={_id="placeholder",visible=false}}
-pgui_components.placeholder.fns.draw = function(self) if (self.visible) print("[x]", self.pos.x, self.pos.y, 8) end
+pgui_components.placeholder.fns.draw = function(self) if (self.visible) then print("[x]", self.pos.x, self.pos.y, 8) end end
 
 pgui_components.text = {fns={}, data={_id="text",text="TEXT",size=vec(0,7)}}
 pgui_components.text.fns.update = function(self)
@@ -52,7 +52,7 @@ pgui_components.multibox.fns.draw = function(self)
 	local fill = self.color[3]
 	local stroke = self.color[4]
 	local pos = self.pos+self.offset
-	if (self.on) pgui:_rect(pos.x,pos.y,self.size.x,self.size.y,fill,true)
+	if (self.on) then pgui:_rect(pos.x,pos.y,self.size.x,self.size.y,fill,true) end
 	pgui:_rect(pos.x,pos.y,self.size.x,self.size.y,stroke,false)
 end
 
@@ -60,8 +60,8 @@ pgui_components.box = {fns={}, data={_id="box",size=vec(16,16),stroke=true,activ
 pgui_components.box.fns.draw = function(self)
 	local fill = self.color[1]
 	local mouse_events = pgui:mouse_events(self)
-	if (mouse_events.over and self.hover) fill = self.color[2]
-	if (mouse_events.left_btn and self.active) fill = self.color[3]
+	if (mouse_events.over and self.hover) then  fill = self.color[2] end
+	if (mouse_events.left_btn and self.active) then fill = self.color[3] end
 	local stroke = self.stroke and self.color[4] or fill
 	pgui:_box(self, self.size.x, self.size.y, fill, stroke)
 end
@@ -84,7 +84,7 @@ pgui_components.sprite = {fns={}, data={_id="sprite",sprite=0,size=vec(0,7),fn=f
 pgui_components.sprite.fns.draw = function(self)
 	self.fn()
 	pgui:_sprite(self.sprite,self)
-	if (self.reset_palt) palt()
+	if (self.reset_palt) then palt() end
 end
 
 pgui_components.sprite_box = {fns={}, data={_id="sprite_box",sprite=0,margin=2,stroke=true,active=false,hover=false,fn=function() end}}
@@ -139,19 +139,19 @@ pgui_components.input.fns.update = function(self)
 		if keyp("backspace") and store.cursor_idx > 0 then
 			local removed = sub(self.text,store.cursor_idx,store.cursor_idx)
 			self.text = sub(self.text,0,store.cursor_idx-1)..sub(self.text,store.cursor_idx+1)
-			store.cursor_pos -= pgui:get_text_width(removed)
-			store.cursor_idx -= 1
+			store.cursor_pos = store.cursor_pos - pgui:get_text_width(removed)
+			store.cursor_idx = store.cursor_idx - 1
 		elseif keyp("left") and store.cursor_idx > 0 then
 			local prevchar = sub(self.text,store.cursor_idx,store.cursor_idx)
-			store.cursor_pos -= pgui:get_text_width(prevchar)
-			store.cursor_idx -= 1
+			store.cursor_pos = store.cursor_pos - pgui:get_text_width(prevchar)
+			store.cursor_idx = store.cursor_idx - 1
 		elseif keyp("right") and store.cursor_idx < #self.text then
 			local nextchar = sub(self.text,store.cursor_idx+1,store.cursor_idx+1)
-			store.cursor_pos += pgui:get_text_width(nextchar)
-			store.cursor_idx += 1
+			store.cursor_pos = store.cursor_pos + pgui:get_text_width(nextchar)
+			store.cursor_idx = store.cursor_idx + 1
 		end
 		local is_shift = false
-		if (key("shift")) is_shift = true
+		if (key("shift")) then is_shift = true end
 		for i,scancode in ipairs(pgui.stats.scancodes) do
 			if keyp(scancode) and self.charlen > #self.text then
 				local str = scancode == "space" and " " or scancode
@@ -159,8 +159,8 @@ pgui_components.input.fns.update = function(self)
 				str = str == "enter" and "" or str
 				str = is_shift and get_scancode_upper(i) or str -- Use my scancode_upper func to do the work instead of lua's upper()
 				self.text = sub(self.text,0,store.cursor_idx)..str..sub(self.text,store.cursor_idx+1)
-				store.cursor_pos += pgui:get_text_width(str)
-				store.cursor_idx += 1
+				store.cursor_pos = store.cursor_pos + pgui:get_text_width(str)
+				store.cursor_idx = store.cursor_ids + 1
 			end
 		end
 		
@@ -187,20 +187,20 @@ pgui_components.vstack = {fns={}, data={_id="vstack",stroke=true,height=0,margin
 pgui_components.vstack.fns.update = function(self)
 	self.size = vec(0,self.margin*2)
 	local y = self.margin
-	if (self.box) pgui:component("box",{size=self.size,stroke=self.stroke},self)
+	if (self.box) then pgui:component("box",{size=self.size,stroke=self.stroke},self) end
 	local upds = {}
 	for content in all(self.contents) do
 		local com = pgui:precomponent(content[1],content[2],self)
 		com.pos = vec(self.margin+com.pos.x,y+com.pos.y)
-		if (com._id == "dropdown") com.grow = true
+		if (com._id == "dropdown") then com.grow = true end
 		local upd = com:_update()
 		add(upds,upd)
 		self.size.x = com.size.x > self.size.x and com.size.x + com.pos.x or self.size.x
-		self.size.y += com.size.y + self.gap
-		y += (com.size.y + self.gap)
+		self.size.y = self.size.y + com.size.y + self.gap
+		y = y + (com.size.y + self.gap)
 	end
-	self.size.x += self.margin*2
-	self.size.y = self.height != 0 and self.height or self.size.y - self.gap
+	self.size.x = self.size.x + self.margin*2
+	self.size.y = self.height ~= 0 and self.height or self.size.y - self.gap
 	return upds	
 end
 
@@ -208,19 +208,19 @@ pgui_components.hstack = {fns={}, data={_id="hstack",stroke=true,width=0,margin=
 pgui_components.hstack.fns.update = function(self)
 	self.size = vec(self.margin*2,0)
 	local x = self.margin
-	if (self.box) pgui:component("box",{size=self.size,stroke=self.stroke}, self)
+	if (self.box) then pgui:component("box",{size=self.size,stroke=self.stroke}, self) end
 	local upds = {}
 	for content in all(self.contents) do
 		local com = pgui:precomponent(content[1],content[2],self)
 		com.pos = vec(x+com.pos.x,self.margin+com.pos.y)
-		if (com._id == "dropdown") com.grow = false
+		if (com._id == "dropdown") then com.grow = false end
 		local upd = com:_update()
 		add(upds,upd)
 		self.size.y = com.size.y > self.size.y and com.size.y + com.pos.y or self.size.y
-		self.size.x += com.size.x + self.gap
-		x += (com.size.x + self.gap)
+		self.size.x = self.size.x + com.size.x + self.gap
+		x = x + (com.size.x + self.gap)
 	end
-	self.size.y += self.margin*2
+	self.size.y = self.size.y + self.margin*2
 	self.size.x = self.width > 0 and self.width or self.size.x - self.gap
 	return upds
 end
@@ -232,7 +232,7 @@ end
 
 pgui_components.dropdown = {fns={}, data={label="dd",_id="dropdown",grow=false,text="DROPDOWN",stroke=true,margin=2,gap=3,contents={},disable=false}}
 pgui_components.dropdown.fns.update = function(self)
-  if (pgui:get_store(self.label,true) == nil) pgui:set_store(self.label,false,true)
+  if (pgui:get_store(self.label,true) == nil) then pgui:set_store(self.label,false,true) end
 	local button = pgui:precomponent("button",{size=self.size,stroke=self.stroke,text=self.text,margin=self.margin,disable=self.disable},self)
 	local clicked = button:_update()
 	self.size = button.size:copy()
@@ -245,7 +245,7 @@ pgui_components.dropdown.fns.update = function(self)
 		local y = button.size.y
 		local vstack = pgui:precomponent("vstack",{layer=self.layer+1,pos=vec(0,y),margin=self.margin,gap=self.gap,contents=self.contents},self)
 		local upd = vstack:_update()
-		if (self.grow) self.size.y += vstack.size.y
+		if (self.grow) then self.size.y = self.size.y + vstack.size.y end
 		return upd
 	end
 	return {}
@@ -253,14 +253,14 @@ end
 
 pgui_components.scrollable = {fns={}, data={label="scrll",_id="scrollable",scroll_x=false,scroll_y=true,size=vec(50,50),sensibility=4,content={"text_box",{text="scrollable",margin=50}}}}
 pgui_components.scrollable.fns.update = function(self)
-	if (pgui:get_store(self.label,true) == nil) pgui:set_store(self.label,{scrolling = vec(0,0)},true)
+	if (pgui:get_store(self.label,true) == nil) then pgui:set_store(self.label,{scrolling = vec(0,0)},true) end
 	local store = pgui:get_store(self.label,true)
 	local com = pgui:precomponent(self.content[1],self.content[2],self)
 	com.pos = store.scrolling
 	com.clip = {self.pos.x+self.offset.x,self.pos.y+self.offset.y,self.size.x,self.size.y}
 	local upd = com:_update()
-	if (not self.scroll_x or (com.size.x < self.size.x)) self.size.x = com.size.x
-	if (not self.scroll_y or (com.size.y < self.size.y)) self.size.y = com.size.y
+	if (not self.scroll_x or (com.size.x < self.size.x)) then self.size.x = com.size.x end
+	if (not self.scroll_y or (com.size.y < self.size.y)) then self.size.y = com.size.y end
 			
 	function limit(com,scroller)
 		if com.size.y - scroller.size.y + com.pos.y <= 0 then
@@ -277,8 +277,8 @@ pgui_components.scrollable.fns.update = function(self)
 
 	local mouse_events = pgui:mouse_events(self)
 	if mouse_events.over then
-		if (self.scroll_y) store.scrolling.y += mouse_events.vs*self.sensibility
-		if (self.scroll_x) store.scrolling.x += mouse_events.hs*self.sensibility
+		if (self.scroll_y) then store.scrolling.y = store.scrolling.y + mouse_events.vs*self.sensibility end
+		if (self.scroll_x) then store.scrolling.x = store.scrolling.x + mouse_events.hs*self.sensibility end
 		limit(com,self)
 	end
 	return upd
@@ -295,10 +295,10 @@ pgui_components.hslider.fns.update = function(self)
 	end
 	self.value = mid(self.min, self.value, self.max)
 	local width = ((self.value - self.min) / range)*self.size.x
-	if (self.flr) self.value = flr(self.value)
+	if (self.flr) then self.value = flr(self.value) end
 	local s = vec(width,self.size.y)
 	local col = {self.color[3],0,0,self.color[4]}
-	if (width > 0) pgui:component("box",{size=s,stroke=self.stroke,color=col},self)
+	if (width > 0) then pgui:component("box",{size=s,stroke=self.stroke,color=col},self) end
 	local text_pos = vec(2,(self.size.y - 6) / 2)
 	pgui:component("text",{text=self.format(self.value),pos=text_pos},self)
 	return self.value
@@ -322,10 +322,10 @@ pgui_components.radio.fns.update = function(self)
 		radiocircle:_update()
 		local text_pos = pos+vec(d+self.sep,(d - 6) / 2)
 		pgui:component("text",{text=opt,pos=text_pos},self)
-		y += d + self.gap
+		y = y + d + self.gap
 		local clicked = pgui:mouse_events(radiocircle).clicked
-		if (clicked) self.selected = i 
-		i += 1
+		if (clicked) then self.selected = i end
+		i = i + 1
 	end	
 	self.size = vec(tw + self.sep + d,y - self.gap)
 	return self.selected
@@ -354,10 +354,10 @@ pgui_components.multi_select.fns.update = function(self)
 		multibox:_update()
 		local text_pos = pos+vec(d+self.sep,(d - 6) / 2)
 		pgui:component("text",{text=opt,pos=text_pos},self)
-		y += d + self.gap
+		y = y + d + self.gap
 		local clicked = pgui:mouse_events(multibox).clicked
-		if (clicked) selected[i] = not selected[i]
-		i += 1
+		if (clicked) then selected[i] = not selected[i] end
+		i = i + 1
 	end	
 	self.size = vec(tw + self.sep + d,y - self.gap)
 	return selected
@@ -391,8 +391,8 @@ pgui_components.palette.fns.update = function(self)
     
 		local box = pgui:precomponent("box",{pos=pos[i],size=vec(self.box_size,self.box_size),stroke=true,color=new_palette},self)
 		box:_update()
-		if (pgui:mouse_events(box).clicked) self.selected = col
-		i += 1
+		if (pgui:mouse_events(box).clicked) then self.selected = col end
+		i = i + 1
 	end
   pgui.stats.memos.palette_pos[memo_code] = pos
   
@@ -410,7 +410,7 @@ pgui_methods =  {}
 --CYCLE METHODS
 function pgui_methods:refresh()
 	self.components = {}
-	self.stats.t += 1
+	self.stats.t = self.stats.t + 1
 	self.stats.blink = flr(self.stats.t / 20 % 2) == 1
 	self.stats.prev_mouse = self:copy_table(self.stats.mouse)
 	self.stats.mouse = self:get_mouse()
@@ -458,23 +458,23 @@ function pgui_methods:new_component(template, opts, parent_opts)
 	for k,v in pairs(base_data) do
 		local value = v
     if parent_opts then
-      if (k == "layer") value = parent_opts.layer
-      if (k == "clip") value = parent_opts.clip
-      if (k == "color") value = parent_opts.color
-      if (k == "offset") value = parent_opts.children_offset
+      if (k == "layer") then value = parent_opts.layer end
+      if (k == "clip") then value = parent_opts.clip end
+      if (k == "color") then value = parent_opts.color end
+      if (k == "offset") then value = parent_opts.children_offset end
     end
-		if (opts[k] != nil) value = opts[k]
+		if (opts[k] ~= nil) then value = opts[k] end
 		data[k] = value
 	end
 	for k,v in pairs(template.data) do
 		local value = v
-		if (opts[k] != nil) value = opts[k]
+		if (opts[k] ~= nil) then value = opts[k] end
 		data[k] = value
 	end
 			
 	local fns = template.fns
 	function fns:_update()
-		if (self.draw) addcomponent(self)
+		if (self.draw) then addcomponent(self) end
 		if (self.update) then
 			self.children_offset = self.pos + self.offset
 			local upd = self:update(self.children_offset)
@@ -511,17 +511,17 @@ function pgui_methods:get_text_width(str)
 		local charlist = split(text,"")
 		for ch in all(charlist) do
 			if ch == "I" or ch == "i" or ch == "l" or ch == "1" then
-				sum += 4
+				sum = sum + 4
 			elseif ch == "M" or ch == "T" or ch == "W" or ch == "m" or ch == "w" then
-				sum += 6
+				sum = sum + 6
 			else
-				sum += 5
+				sum = sum + 5
 			end
 		end
 		return sum
 	end
 	
-	if (#lines == 1) return tw(str)
+	if (#lines == 1) then return tw(str) end
 	
 	local width = 0
 	for text in all(lines) do
@@ -540,13 +540,13 @@ function pgui_methods:get_cursor_pos(margin,text,relx)
 		if ch == "I" or ch == "i" or ch == "l" or ch == "1" then
 			v = 4
 		elseif ch == "M" or ch == "T" or ch == "W" or ch == "m" or ch == "w" then
-			v += 6
+			v = v + 6
 		else
-			v += 5
+			v = v + 5
 		end
-		if (sum + v > relx) return {sum,i}
-		sum += v
-		i += 1
+		if (sum + v > relx) then return {sum,i} end
+		sum = sum + v
+		i = i + 1
 	end
 	return {sum,i}
 end
@@ -685,7 +685,7 @@ end
 function pgui_methods:_radiocirc(com,r,fill,stroke,f)
 	local x = com.pos.x+com.offset.x+r
 	local y = com.pos.y+com.offset.y+r
-	if (f) circfill(x,y,r,fill)
+	if (f) then circfill(x,y,r,fill) end
 	circ(x,y,r,stroke)
 end
 

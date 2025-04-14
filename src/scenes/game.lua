@@ -1,3 +1,4 @@
+include("lib/pecs.lua")
 Timer = require("timer")
 local log = require("log")
 local game = {}
@@ -10,7 +11,7 @@ Enemies = {}
 local play_music = false
 
 game.initLevel = function()
-	Map = fetch("map/level1.map")[1].bmp
+	Map = fetch("assets/map/level1.map")[1].bmp
 	memmap(Map, 0x100000)
 end
 
@@ -19,10 +20,10 @@ game.init = function()
 	players = {}
 	game.initLevel()
 	World = pecs()
-	include("components.lua")
-	include("factories/player.lua")
-	include("factories/camera.lua")
-	include("factories/spawner.lua")
+	include("src/components.lua")
+	include("src/factories/player.lua")
+	include("src/factories/camera.lua")
+	include("src/factories/spawner.lua")
 
 	local player = Player:new()
 	local playerEntity = player:makeEntity(1, "Player1")
@@ -33,7 +34,7 @@ game.init = function()
 	local spawner = SpawnerClass:new()
 	spawner:makeEntity(15, 15, 64)
 
-	include("systems/index.lua")
+	include("src/systems/index.lua")
 end
 
 local lastTickTime = time()

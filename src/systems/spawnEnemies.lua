@@ -1,4 +1,4 @@
-include("factories/enemy.lua")
+include("src/factories/enemy.lua")
 
 systems.spawnEnemies = World.system({Spawner, Position}, function(entity)
   local position = entity[Position]

@@ -1,5 +1,5 @@
 local machine = require("statemachine")
-local class = require 'lowerclass'
+local class = require 'middleclass'
 Timer = require("timer")
 
 Player = class('player')

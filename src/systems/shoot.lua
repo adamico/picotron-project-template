@@ -1,4 +1,4 @@
-include("factories/bullet.lua")
+include("src/factories/bullet.lua")
 
 systems.shoot = World.system({Shoot, Position}, function(entity)
   local position = entity[Position]

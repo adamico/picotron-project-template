@@ -1,4 +1,4 @@
-local class = require 'lowerclass'
+local class = require 'middleclass'
 local machine = require("statemachine")
 
 Enemy = class('enemy')

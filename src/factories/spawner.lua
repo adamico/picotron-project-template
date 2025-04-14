@@ -1,4 +1,4 @@
-local class = require 'lowerclass'
+local class = require 'middleclass'
 
 SpawnerClass = class('spawner')
 

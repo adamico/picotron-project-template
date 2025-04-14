@@ -98,3 +98,19 @@ AllElementsBut = function(array, element)
   del(array2, element)
   return array2
 end
+
+TileSizeX = 24
+TileSizeY = 24
+
+Screen = { w=480, h=270 }
+
+screen_c_x = Screen.w/2
+screen_c_y = Screen.h/2
+
+PlayerTiles = {71, 79, 87, 95} -- dictionary of captured tiles number for each player
+
+
+Title = "GeoArena"
+Version = "0.1"
+Author = "kc00l"
+Date = date("2020-%Y")

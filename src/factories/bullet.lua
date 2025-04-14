@@ -1,6 +1,6 @@
-local class = require 'lowerclass'
+local class = require 'middleclass'
 
-BulletClass = class('bullet')
+BulletClass = class('Bullet')
 
 function BulletClass:makeEntity(position_component, shoot_component, owner_entity)
   return World.entity(

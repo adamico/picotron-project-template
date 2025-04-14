@@ -17,7 +17,7 @@ local system_names = {
 }
 
 for name in all(system_names) do
-	include("systems/"..name..".lua")
+	include("src/systems/"..name..".lua")
 end
 
 -- drawPowerups()

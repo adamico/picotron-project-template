@@ -1,4 +1,4 @@
-local shooting = ecs.processingSystem(class('Shooting'))
+local shooting = ecs.processingSystem()
 local Bullet = require('bullet')
 
 shooting.filter = ecs.requireAll('shoot')

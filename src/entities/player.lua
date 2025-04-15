@@ -121,6 +121,7 @@ function Player:initialize(name, position)
       }
     })
   }
+  self.z_index = 1000
 end
 
 function Player:draw()

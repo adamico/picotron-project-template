@@ -1,4 +1,4 @@
-local killBullets = ecs.processingSystem(class('KillBullets'))
+local killBullets = ecs.processingSystem()
 
 local outOfMapBounds = function(position, bounds)
   return position.x/TileSizeX > bounds.x - 10

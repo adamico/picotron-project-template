@@ -1,4 +1,4 @@
-local moveActors = ecs.processingSystem(class('MoveActors'))
+local moveActors = ecs.processingSystem()
 
 local checkTileFlag = function(x, y, flag)
 	local tile = mget(x, y)

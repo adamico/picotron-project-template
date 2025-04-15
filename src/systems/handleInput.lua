@@ -1,4 +1,4 @@
-local handleInput = ecs.processingSystem(class('HandleInput'))
+local handleInput = ecs.processingSystem()
 
 handleInput.filter = ecs.requireAll('control')
 

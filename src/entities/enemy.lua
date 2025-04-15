@@ -40,6 +40,7 @@ function Enemy:initialize(position, w, h)
       }
     })
   }
+  self.z_index = 3
 end
 
 function Enemy:draw(_dt)

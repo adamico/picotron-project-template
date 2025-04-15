@@ -12,6 +12,7 @@ function Bullet:initialize(position_component, shoot_component, owner_entity)
     vx = shoot_component.speed, vy = shoot_component.speed
   }
   self.belongsTo = owner_entity
+  self.z_index = 1
 end
 
 function Bullet:draw(_dt)

@@ -1,4 +1,4 @@
-local drawBullets = ecs.processingSystem(class('DrawBullets'))
+local drawBullets = ecs.processingSystem()
 
 drawBullets.isDrawSystem = true
 drawBullets.filter = ecs.requireAll('bullet')

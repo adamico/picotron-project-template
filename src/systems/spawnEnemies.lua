@@ -1,6 +1,6 @@
 local chance = require('chance')
 
-local spawnEnemies = ecs.processingSystem(class('SpawnEnemies'))
+local spawnEnemies = ecs.processingSystem()
 local Enemy = require('enemy')
 
 spawnEnemies.filter = ecs.requireAll('spawner', 'position')

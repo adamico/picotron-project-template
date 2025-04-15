@@ -1,4 +1,4 @@
-local updateActorState = ecs.processingSystem(class('UpdateActorState'))
+local updateActorState = ecs.processingSystem()
 
 updateActorState.filter = ecs.requireAll('actor', 'state')
 

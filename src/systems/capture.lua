@@ -1,4 +1,4 @@
-local capture = ecs.processingSystem(class('Capture'))
+local capture = ecs.processingSystem()
 
 capture.filter = ecs.requireAll('capture')
 

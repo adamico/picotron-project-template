@@ -1,72 +1,96 @@
-include('lib/pecs.lua')
+local pgui = require("pgui")
+ecs 			 = require('tiny')
+Timer      = require('timer')
+class   	 = require('middleclass')
 
-include('lib/pecs.lua')
-
-Timer = require('timer')
 HoverTimer = Timer.new()
-local play_music = false
-
-Map = nil
-Enemies = {}
 
 local Play = SceneManager:addState('Play')
 
+Map = nil
+Enemies = {}
+players = {}
+
+local play_music = false
+
+local Player  = require('player')
+local Camera  = require('camera')
+local Spawner = require('spawner')
+
+--systems
+
+local player, cam, spawner
+
 function Play:enteredState()
-	systems = {}
-	players = {}
 	Map = fetch('assets/map/level1.map')[1].bmp
 	memmap(Map, 0x100000)
-	World = pecs()
 
-	include('src/components.lua')
-	include('src/factories/player.lua')
-	include('src/factories/camera.lua')
-	include('src/factories/spawner.lua')
-	include('src/systems/index.lua')
+	player = Player:new('myself', vec(9,9))
+	add(players, player)
 
-	local player = Player:new()
-	local playerEntity = player:makeEntity(1, 'Player1')
+	cam = Camera:new(player)
 
-	local camera = Camera:new()
-	camera:makeEntity(playerEntity)
+	local spawner_position = vec(15,15)
+	local spawner_sprite = 64
+	spawner = Spawner:new(spawner_position, spawner_sprite)
 
-	local spawner = SpawnerClass:new()
-	spawner:makeEntity(15, 15, 64)
+	world = ecs.world(
+		require('handleInput'),
+		require('capture'),
+		require('moveActors'),
+		require('shooting'),
+		require('updateActorState'),
+		require('moveBullets'),
+		require('drawSprites'),
+		require('killBullets'),
+		require('spawnEnemies')
+	)
+
+	world:add(player)
+	world:add(cam)
+	world:add(spawner)
 end
+
+local drawFilter = ecs.requireAll('isDrawSystem')
+local updateFilter = ecs.rejectAny('isDrawSystem')
 
 local lastTickTime = time()
 function Play:update()
 	local tickTime = time()
 	local dt = tickTime - lastTickTime
+	if world then world:update(dt, updateFilter) end
 	if play_music then music(0, 1000) play_music = false end
-	World.update()
 	pgui:refresh()
-	systems.handleInput()
-	systems.updateActorState()
-	systems.capture()
-	systems.moveActors()
-	systems.shoot()
-	systems.moveBullets()
-	systems.killBullets()
-	systems.spawnEnemies()
-	systems.animateActors()
+
+	-- systems.animateActors()
+
 	Timer.update(dt)
 	HoverTimer:update(dt)
+
 	lastTickTime = tickTime
 end
 
+local drawDebug = require('drawDebug')
+
 function Play:draw()
+	local tickTime = time()
+	local dt = tickTime - lastTickTime
 	cls(1)
-	systems.move_camera()
 	pal(0, false)
+
+	cam:update()
+
 	map(0, 0, 0, 0, 48, 48, 0, TileSizeX, TileSizeY)
-	systems.drawSpawners()
-	systems.drawBullets()
-	systems.drawActors()
+
+	if world then world:update(dt, drawFilter) end
+	-- systems.drawSpawners()
+	-- systems.drawActors()
+	-- player:draw()
 
 	camera()
-	systems.drawDebug()
-	systems.drawUI()
+	-- drawDebug:update(dt)
+	-- systems.drawUI()
+	drawDebug(player, spawner)
 	pgui:draw()
 end
 

@@ -24,7 +24,8 @@ include("configuration.lua")
 add_module_path("lib/")
 add_module_path("src/")
 add_module_path("src/scenes/")
-add_module_path("src/factories/")
+add_module_path("src/entities/")
+add_module_path("src/systems/")
 
 local log = require("log")
 
@@ -52,7 +53,7 @@ function _init()
 	local success, err = pcall(function()
 		-- Initialization logic here
 		Game = SceneManager:new()
-		Game:gotoState('Title')
+		Game:gotoState('Play')
 	end)
 
 	if not success then

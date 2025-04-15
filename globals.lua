@@ -108,7 +108,13 @@ screen_c_x = Screen.w/2
 screen_c_y = Screen.h/2
 
 PlayerTiles = {71, 79, 87, 95} -- dictionary of captured tiles number for each player
-
+PlayerSounds = {
+  start_engine = 48,
+  stop_engine = 49,
+  start_capturing = 50,
+  captured = 51,
+  shooting = 52
+}
 
 GameTitle = "GeoArena"
 GameVersion = "0.1"

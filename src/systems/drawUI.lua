@@ -1,5 +1,7 @@
 local pgui = require("pgui")
 
+drawUI.isDrawSystem = true
+
 systems.drawUI = World.system({Score}, function(entity)
 	local score = entity[Score]
 

@@ -1,3 +1,5 @@
+local moveActors = ecs.processingSystem(class('MoveActors'))
+
 local checkTileFlag = function(x, y, flag)
 	local tile = mget(x, y)
 	return fget(tile, flag)
@@ -7,13 +9,13 @@ local canMoveTo = function(x, y)
 	return not checkTileFlag(x, y, 0)
 end
 
-systems.moveActors = World.system({Actor, Physics, Position}, function(entity)
-	local animation = entity[Animation]
-	local physics = entity[Physics]
-	local position = entity[Position]
-	local state = entity[State]
+moveActors.filter = ecs.requireAll('actor', 'physics', 'position')
 
-	local fsm = state.machine
+function moveActors:process(entity, _dt)
+	local animation = entity.animation
+	local physics = entity.physics
+	local position = entity.position
+
 	local new_offset_x, new_offset_y = animation.start_offset_x, animation.start_offset_y
 	local new_x, new_y = position.x, position.y
 	local dir = physics.dir
@@ -39,4 +41,6 @@ systems.moveActors = World.system({Actor, Physics, Position}, function(entity)
 	animation.offset_t = max(animation.offset_t - move_delta, 0)
 	animation.offset_x = animation.start_offset_x * animation.offset_t
 	animation.offset_y = animation.start_offset_y * animation.offset_t
-end)
+end
+
+return moveActors

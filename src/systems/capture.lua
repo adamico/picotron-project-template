@@ -1,9 +1,13 @@
-systems.capture = World.system({Capture}, function(entity)
-	local actor = entity[Actor]
-	local capture = entity[Capture]
-	local position = entity[Position]
-	local sound = entity[Sound]
-	local state = entity[State]
+local capture = ecs.processingSystem(class('Capture'))
+
+capture.filter = ecs.requireAll('capture')
+
+function capture:process(entity, _dt)
+	local actor = entity.actor
+	local capture = entity.capture
+	local position = entity.position
+	local state = entity.state
+	local score = entity.score
 
 	local actor_number = actor.id
 	local fsm = state.machine
@@ -33,17 +37,19 @@ systems.capture = World.system({Capture}, function(entity)
 		if capture.time == 66 then fsm:capture3() end
 		if capture.time == 100 then
 			fsm:stop_capturing(entity)
-			sfx(sound.captured, 8)
+			sfx(PlayerSounds.captured, 8)
 
 			for tile in all(tiles_to_capture) do
 				local tx = tile.x
 				local ty = tile.y
 				mset(tx, ty, PlayerTiles[actor_number])
-				entity[Score].captured = entity[Score].captured +1
+				score.captured = score.captured + 1
 				--TODO: calculate score, current player +1 and tile owner -1
 				--TODO: check for loot under captured tile
 			end
 			capture.time = 0
 		end
 	end
-end)
+end
+
+return capture

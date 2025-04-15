@@ -1,9 +1,10 @@
-systems.drawBullets = World.system({Bullet}, function(entity)
-  local sprite = entity[Sprite].number
-  local position = entity[Position]
+local drawBullets = ecs.processingSystem(class('DrawBullets'))
 
-	palt(30, true)
-	palt(0, false)
+drawBullets.isDrawSystem = true
+drawBullets.filter = ecs.requireAll('bullet')
 
-  spr(sprite, position.x, position.y)
-end)
+function drawBullets:process(entity, dt)
+  entity:draw(dt)
+end
+
+return drawBullets

@@ -1,6 +1,10 @@
-systems.moveBullets = World.system({Bullet, Physics, Position}, function(entity)
-	local physics = entity[Physics]
-	local position = entity[Position]
+local moveBullets = ecs.processingSystem()
+
+moveBullets.filter = ecs.requireAll('bullet')
+
+function moveBullets:process(entity, _dt)
+	local physics = entity.physics
+	local position = entity.position
 	local new_x, new_y = position.x, position.y
 	local dir = physics.dir
 	new_x = position.x + dir.x * physics.vx
@@ -8,4 +12,6 @@ systems.moveBullets = World.system({Bullet, Physics, Position}, function(entity)
 
 	position.x = new_x
 	position.y = new_y
-end)
+end
+
+return moveBullets

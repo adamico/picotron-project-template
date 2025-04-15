@@ -1,3 +1,7 @@
+local drawSpawners = ecs.system()
+
+drawSpawners.isDrawSystem = true
+
 systems.drawSpawners = World.system({Spawner}, function(entity)
   local sprite = entity[Sprite].number
   local position = entity[Position]

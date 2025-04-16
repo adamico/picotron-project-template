@@ -43,7 +43,8 @@ function Play:enteredState()
 		require('moveBullets'),
 		require('drawSprites'),
 		require('killBullets'),
-		require('spawnEnemies')
+		require('spawnEnemies'),
+		require('drawUI')
 	)
 
 	world:add(player)

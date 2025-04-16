@@ -1,5 +1,5 @@
 local pgui = require("pgui")
-ecs 			 = require('tiny')
+tiny 			 = require('tiny')
 Timer      = require('timer')
 class   	 = require('middleclass')
 
@@ -34,7 +34,7 @@ function Play:enteredState()
 	local spawner_sprite = 64
 	spawner = Spawner:new(spawner_position, spawner_sprite)
 
-	world = ecs.world(
+	world = tiny.world(
 		require('handleInput'),
 		require('capture'),
 		require('moveActors'),
@@ -52,8 +52,8 @@ function Play:enteredState()
 	world:add(spawner)
 end
 
-local drawFilter = ecs.requireAll('isDrawSystem')
-local updateFilter = ecs.rejectAny('isDrawSystem')
+local drawFilter = tiny.requireAll('isDrawSystem')
+local updateFilter = tiny.rejectAny('isDrawSystem')
 
 local lastTickTime = time()
 function Play:update()

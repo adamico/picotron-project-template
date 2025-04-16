@@ -1,9 +1,9 @@
 local chance = require('chance')
 
-local spawnEnemies = ecs.processingSystem()
+local spawnEnemies = tiny.processingSystem()
 local Enemy = require('enemy')
 
-spawnEnemies.filter = ecs.requireAll('spawner', 'position')
+spawnEnemies.filter = tiny.requireAll('spawner', 'position')
 
 function spawnEnemies:process(entity, _dt)
   local spawner_position = entity.position

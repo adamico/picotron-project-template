@@ -1,7 +1,7 @@
-local drawSprites = ecs.sortedProcessingSystem()
+local drawSprites = tiny.sortedProcessingSystem()
 
 drawSprites.isDrawSystem = true
-drawSprites.filter = ecs.requireAll('sprite')
+drawSprites.filter = tiny.requireAll('sprite')
 
 function drawSprites:process(entity, dt)
   entity:draw(dt)

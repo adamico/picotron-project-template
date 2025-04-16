@@ -1,6 +1,6 @@
-local moveBullets = ecs.processingSystem()
+local moveBullets = tiny.processingSystem()
 
-moveBullets.filter = ecs.requireAll('bullet')
+moveBullets.filter = tiny.requireAll('bullet')
 
 function moveBullets:process(entity, _dt)
 	local physics = entity.physics

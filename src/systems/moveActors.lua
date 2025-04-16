@@ -1,4 +1,4 @@
-local moveActors = ecs.processingSystem()
+local moveActors = tiny.processingSystem()
 
 local checkTileFlag = function(x, y, flag)
 	local tile = mget(x, y)
@@ -9,7 +9,7 @@ local canMoveTo = function(x, y)
 	return not checkTileFlag(x, y, 0)
 end
 
-moveActors.filter = ecs.requireAll('actor', 'physics', 'position')
+moveActors.filter = tiny.requireAll('actor', 'physics', 'position')
 
 function moveActors:process(entity, _dt)
 	local animation = entity.animation

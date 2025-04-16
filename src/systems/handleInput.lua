@@ -1,6 +1,6 @@
-local handleInput = ecs.processingSystem()
+local handleInput = tiny.processingSystem()
 
-handleInput.filter = ecs.requireAll('control')
+handleInput.filter = tiny.requireAll('control')
 
 function handleInput:process(entity, _dt)
 	local dir = (not btn(4) and not btn(5)) and ButtonsToDir() or vec(0,0)

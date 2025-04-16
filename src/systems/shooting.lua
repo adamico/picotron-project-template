@@ -1,7 +1,7 @@
-local shooting = ecs.processingSystem()
+local shooting = tiny.processingSystem()
 local Bullet = require('bullet')
 
-shooting.filter = ecs.requireAll('shoot')
+shooting.filter = tiny.requireAll('shoot')
 
 function shooting:process(entity, _dt)
   local position = entity.position

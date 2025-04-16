@@ -1,4 +1,4 @@
-local killBullets = ecs.processingSystem()
+local killBullets = tiny.processingSystem()
 
 local outOfMapBounds = function(position, bounds)
   return position.x/TileSizeX > bounds.x - 10
@@ -6,7 +6,7 @@ local outOfMapBounds = function(position, bounds)
     or position.x < 0 or position.y < 0
 end
 
-killBullets.filter = ecs.requireAll('bullet')
+killBullets.filter = tiny.requireAll('bullet')
 
 function killBullets:process(entity, _dt)
   local position = entity.position

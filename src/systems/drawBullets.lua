@@ -1,7 +1,7 @@
-local drawBullets = ecs.processingSystem()
+local drawBullets = tiny.processingSystem()
 
 drawBullets.isDrawSystem = true
-drawBullets.filter = ecs.requireAll('bullet')
+drawBullets.filter = tiny.requireAll('bullet')
 
 function drawBullets:process(entity, dt)
   entity:draw(dt)

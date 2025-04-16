@@ -1,6 +1,6 @@
-local capture = ecs.processingSystem()
+local capture = tiny.processingSystem()
 
-capture.filter = ecs.requireAll('capture')
+capture.filter = tiny.requireAll('capture')
 
 function capture:process(entity, _dt)
 	local actor = entity.actor

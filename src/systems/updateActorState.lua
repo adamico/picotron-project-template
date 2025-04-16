@@ -1,6 +1,6 @@
-local updateActorState = ecs.processingSystem()
+local updateActorState = tiny.processingSystem()
 
-updateActorState.filter = ecs.requireAll('actor', 'state')
+updateActorState.filter = tiny.requireAll('actor', 'state')
 
 function updateActorState:process(entity, _dt)
 	local dir = entity.physics.dir

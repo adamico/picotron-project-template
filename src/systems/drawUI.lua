@@ -1,9 +1,9 @@
 local pgui = require('pgui')
-local drawUI = ecs.processingSystem()
+local drawUI = tiny.processingSystem()
 
 drawUI.isDrawSystem = true
 
-drawUI.filter = ecs.requireAll('score')
+drawUI.filter = tiny.requireAll('score')
 
 function drawUI:process(entity, _dt)
 	local score = entity.score

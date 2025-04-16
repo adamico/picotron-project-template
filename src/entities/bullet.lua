@@ -24,6 +24,10 @@ function Bullet:draw(_dt)
   spr(self.sprite, self.position.x, self.position.y)
 end
 
+function Bullet:die()
+  world:remove(self)
+end
+
 function Bullet:onCollision(collision)
   self:die()
   if collision.other.isEnemy and collision.other.gotHit then

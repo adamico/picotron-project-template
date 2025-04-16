@@ -10,7 +10,7 @@ local function getCellRect(world, cx, cy)
   return x, y, cellSize, cellSize
 end
 
-local function drawBump(bumpWorld)
+local function drawBump()
   for cy, row in pairs(bumpWorld.rows) do
     for cx, _cell in pairs(row) do
       local x, y, w, h = getCellRect(bumpWorld, cx, cy)
@@ -22,7 +22,7 @@ end
 
 function drawSprites:process(entity, dt)
   entity:draw(dt)
-  -- drawBump(bumpWorld)
+  drawBump()
 end
 
 function drawSprites:compare(e1, e2)

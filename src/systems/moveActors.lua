@@ -51,10 +51,10 @@ function MoveActors:process(entity, _dt)
 
 	if cols then
 		for i=1,len do
-			local collision = cols[i]
+			local other = cols[i]
 
 			if entity.onCollision then
-				entity:onCollision(collision)
+				entity:onCollision(other)
 			end
 		end
 	end

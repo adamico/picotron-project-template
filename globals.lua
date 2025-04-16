@@ -99,6 +99,17 @@ AllElementsBut = function(array, element)
   return array2
 end
 
+
+function sort(a,cmp)
+	for i=1,#a do
+			local j = i
+			while j > 1 and cmp(a[j-1],a[j]) do
+					a[j],a[j-1] = a[j-1],a[j]
+			j = j - 1
+			end
+	end
+end
+
 TileSizeX = 24
 TileSizeY = 24
 
@@ -109,11 +120,16 @@ screen_c_y = Screen.h/2
 
 PlayerTiles = {71, 79, 87, 95} -- dictionary of captured tiles number for each player
 PlayerSounds = {
-  start_engine = 48,
-  stop_engine = 49,
-  start_capturing = 50,
   captured = 51,
-  shooting = 52
+  shooting = 52,
+  start_capturing = 50,
+	start_engine = 48,
+  stop_engine = 49,
+	hit = 53
+}
+
+EnemySounds = {
+	hit = 54
 }
 
 GameTitle = "GeoArena"

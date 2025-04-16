@@ -31,13 +31,17 @@ local idleStates = {
 local movingAndIdleStates = ShallowMerge(movingStates, idleStates)
 
 function Player:initialize(name, position)
+  self.isPlayer = true
+  self.isSolid = true
+
   self.actor = {
-      type = 'player',
-      id = number or 1,
-      name = name or 'Player1'
-    }
+    type = 'player',
+    id = number or 1,
+    name = name or 'Player1'
+  }
 
   self.animation = {
+    offset_speed=0.06,
     offset_x = 0,
     offset_y = 0,
     start_offset_x = 0,
@@ -61,7 +65,7 @@ function Player:initialize(name, position)
   self.capture  = {time=0, power=1}
   self.control  = {}
   self.hover    = {}
-  self.physics  = {xv=0, yv=0, speed=0.06, dir=vec(0,0)}
+  self.physics  = {vel=vec(0,0), dir=vec(0,0)}
   self.position = position or vec(0,0)
   self.score    = {captured=0 }
   self.shoot    = {time=0, dir=nil, speed=6, rate=60, bullets={}}
@@ -124,19 +128,44 @@ function Player:initialize(name, position)
   self.z_index = 1000
 end
 
+
+local function drawOffset(sprite, position, offset)
+  local offsetpos = {x=position.x*TileSizeX + offset.x, y=position.y*TileSizeY + offset.y}
+  if (offsetpos.x ~= position.x*TileSizeX or offsetpos.y ~= position.y*TileSizeY) then
+    for n in all{0,1,7,10,12,16,28} do
+      pal(n,1)
+    end
+    palt(30, true)
+    palt(0, false)
+    spr(sprite, position.x*TileSizeX, position.y*TileSizeY)
+    pal()
+  end
+end
+
 function Player:draw()
 	local animation = self.animation
 	local position = self.position
 	local state = self.state.machine.current
 
+	local offset = {x=animation.offset_x, y=animation.offset_y}
+  self.sprite = animation.statesToSprites[state]
+
+  -- drawOffset(self.sprite, position, offset)
+
 	palt(30, true)
 	palt(0, false)
-
-	self.sprite = animation.statesToSprites[state]
-	local offset = {x=animation.offset_x, y=animation.offset_y}
 	spr(self.sprite,
 		position.x * TileSizeX + offset.x,
 		position.y * TileSizeY + offset.y)
+end
+
+function Player:onHit()
+  sfx(PlayerSounds.hit)
+end
+
+function Player:onCollision(collision)
+  if collision.other.isEnemy then self:onHit() end
+  --TODO: check invuln and isAlive for player and enemy
 end
 
 return Player

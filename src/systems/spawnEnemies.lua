@@ -16,8 +16,8 @@ function spawnEnemies:process(entity, _dt)
   end
 
   while #Enemies < 3 do
-    local xs = chance.helpers.shuffle(enemy_positions.x, 3)
-    local ys = chance.helpers.shuffle(enemy_positions.y, 3)
+    local xs = chance.helpers.shuffle(enemy_positions.x)
+    local ys = chance.helpers.shuffle(enemy_positions.y)
     local position = vec(xs[1], ys[1])
     local enemy = Enemy:new(position, 15, 15)
     world:add(enemy)

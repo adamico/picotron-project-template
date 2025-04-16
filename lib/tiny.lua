@@ -1,3 +1,4 @@
+--[[pod_format="raw",created="2025-04-16 13:40:03",modified="2025-04-16 13:40:03",revision=0]]
 --[[
 Copyright (c) 2016 Calvin Rose
 
@@ -30,10 +31,10 @@ local function sort(a,cmp)
         local j = i
         while j > 1 and cmp(a[j-1],a[j]) do
             a[j],a[j-1] = a[j-1],a[j]
-      j = j - 1
+        j = j - 1
         end
     end
-  end
+end
 
 -- Local versions of standard lua functions
 local tinsert = table.insert

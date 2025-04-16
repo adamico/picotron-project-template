@@ -1,6 +1,9 @@
 local Bullet = class('Bullet')
 
+Bullet.isBullet = true
+
 function Bullet:initialize(position_component, shoot_component, owner_entity)
+  self.box = {x=0, y=0, w=12, h=12}
   self.bullet = {}
   self.position = vec(
     (position_component.x + 0.5 * shoot_component.dir.x)*TileSizeX,
@@ -19,6 +22,13 @@ function Bullet:draw(_dt)
   palt(30, true)
   palt(0, false)
   spr(self.sprite, self.position.x, self.position.y)
+end
+
+function Bullet:onCollision(collision)
+  self:die()
+  if collision.other.isEnemy and collision.other.gotHit then
+    collision.other:gotHit()
+  end
 end
 
 return Bullet

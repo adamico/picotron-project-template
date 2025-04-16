@@ -3,6 +3,8 @@ tiny 			 = require('tiny')
 Timer      = require('timer')
 class   	 = require('middleclass')
 
+local bump = require('bump')
+
 HoverTimer = Timer.new()
 
 local Play = SceneManager:addState('Play')
@@ -21,10 +23,16 @@ local Spawner = require('spawner')
 
 local player, cam, spawner
 
+local checkTileFlag = function(x, y, flag)
+	local tile = mget(x, y)
+	return fget(tile, flag)
+end
+
 function Play:enteredState()
 	Map = fetch('assets/map/level1.map')[1].bmp
 	memmap(Map, 0x100000)
 
+	bumpWorld = bump.newWorld(TileSizeX)
 	player = Player:new('myself', vec(9,9))
 	add(players, player)
 
@@ -37,7 +45,7 @@ function Play:enteredState()
 	world = tiny.world(
 		require('handleInput'),
 		require('capture'),
-		require('moveActors'),
+		require('moveActors')(bumpWorld),
 		require('shooting'),
 		require('updateActorState'),
 		require('moveBullets'),
@@ -63,8 +71,6 @@ function Play:update()
 	if play_music then music(0, 1000) play_music = false end
 	pgui:refresh()
 
-	-- systems.animateActors()
-
 	Timer.update(dt)
 	HoverTimer:update(dt)
 
@@ -84,13 +90,8 @@ function Play:draw()
 	map(0, 0, 0, 0, 48, 48, 0, TileSizeX, TileSizeY)
 
 	if world then world:update(dt, drawFilter) end
-	-- systems.drawSpawners()
-	-- systems.drawActors()
-	-- player:draw()
 
 	camera()
-	-- drawDebug:update(dt)
-	-- systems.drawUI()
 	drawDebug(player, spawner)
 	pgui:draw()
 end

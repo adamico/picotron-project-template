@@ -5,11 +5,14 @@ local Enemy = class('enemy')
 local movingStates = {"moving"}
 local idleStates   = {"idle"}
 
+Enemy.isEnemy = true
+
 function Enemy:initialize(position, w, h)
   self.actor = {
     type = "enemy",
   }
   self.animation = {
+    offset_speed = 0.06,
     offset_x = 0,
     offset_y = 0,
     start_offset_x = 0,
@@ -21,7 +24,7 @@ function Enemy:initialize(position, w, h)
     }
   }
   self.box      = {x = 0, y = 0, w = w, h = h}
-  self.physics  = {xv = 0, yv = 0, speed = 0.06, dir = vec(0,0)}
+  self.physics  = {vel=vec(0,0), dir=vec(0,0)}
   self.position = position
   self.sprite   = 18
   self.state    = {
@@ -47,6 +50,10 @@ function Enemy:draw(_dt)
   palt(30, true)
   palt(0, false)
   spr(self.sprite, self.position.x*TileSizeX, self.position.y*TileSizeY)
+end
+
+function Enemy:gotHit()
+  sfx(EnemySounds.hit)
 end
 
 return Enemy

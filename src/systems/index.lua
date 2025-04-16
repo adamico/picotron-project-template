@@ -1,7 +1,8 @@
+-- collision
+-- death
 -- drawPowerups
 -- drawParticles
 -- drawFloats
--- collision
 -- spawnLoot
 -- checkPlayerProtected
 -- checkPlayerForm

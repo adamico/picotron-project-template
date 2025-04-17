@@ -1,5 +1,5 @@
 local machine = require("statemachine")
-
+add_module_path("src/ai/")
 local Enemy = class('enemy')
 
 local movingStates = {"moving"}
@@ -77,6 +77,12 @@ function Enemy:onHit(damage)
   self:takeDamage(damage)
 
   Timer.during(0.05, function() self.isFlashing = true end, function() self.isFlashing = false end)
+end
+
+local brain = require('brain1')
+
+function Enemy:think(dt)
+  brain(self, dt, player)
 end
 
 return Enemy

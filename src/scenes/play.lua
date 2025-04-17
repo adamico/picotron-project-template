@@ -51,6 +51,7 @@ function Play:enteredState()
 		require('drawSprites'),
 		require('killBullets'),
 		require('spawnEnemies'),
+		require('executeAI')(player),
 		require('drawUI')
 	)
 

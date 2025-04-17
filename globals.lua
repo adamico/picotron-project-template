@@ -49,6 +49,15 @@ function get_pid_by_name(name)
 	return -1
 end
 
+function FlashTo(condition, colors, toColor)
+  if condition then
+    for n in all(colors) do
+      pal(n, toColor)
+    end
+  else
+    pal()
+  end
+end
 
 ButtonsToDir = function()
 	local dir = vec(0,0)
@@ -121,15 +130,17 @@ screen_c_y = Screen.h/2
 PlayerTiles = {71, 79, 87, 95} -- dictionary of captured tiles number for each player
 PlayerSounds = {
   captured = 51,
+  die = 47,
+	hit = 53,
   shooting = 52,
   start_capturing = 50,
 	start_engine = 48,
   stop_engine = 49,
-	hit = 53
 }
 
 EnemySounds = {
-	hit = 54
+	hit = 54,
+	die = 55
 }
 
 GameTitle = "GeoArena"

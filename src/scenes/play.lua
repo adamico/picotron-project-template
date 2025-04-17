@@ -2,10 +2,9 @@ local pgui = require("pgui")
 tiny 			 = require('tiny')
 Timer      = require('timer')
 class   	 = require('middleclass')
-
 local bump = require('bump')
 
-HoverTimer = Timer.new()
+local drawDebug = require('drawDebug')
 
 local Play = SceneManager:addState('Play')
 
@@ -60,7 +59,7 @@ function Play:enteredState()
 	world:add(spawner)
 end
 
-local drawFilter = tiny.requireAll('isDrawSystem')
+local drawFilter 	 = tiny.requireAll('isDrawSystem')
 local updateFilter = tiny.rejectAny('isDrawSystem')
 
 local lastTickTime = time()
@@ -72,12 +71,9 @@ function Play:update()
 	pgui:refresh()
 
 	Timer.update(dt)
-	HoverTimer:update(dt)
 
 	lastTickTime = tickTime
 end
-
-local drawDebug = require('drawDebug')
 
 function Play:draw()
 	local tickTime = time()

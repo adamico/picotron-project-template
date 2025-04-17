@@ -14,7 +14,7 @@ local canMoveTo = function(x, y)
 	return not checkTileFlag(x, y, 0)
 end
 
-MoveActors.filter = tiny.requireAll('actor', 'box', 'physics', 'position')
+MoveActors.filter = tiny.requireAll('isActor')
 
 local function collisionFilter(entity, other_entity)
 	if entity.isPlayer then

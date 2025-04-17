@@ -1,6 +1,6 @@
 local moveBullets = tiny.processingSystem()
 
-moveBullets.filter = tiny.requireAll('bullet')
+moveBullets.filter = tiny.requireAll('isBullet')
 
 local function collisionFilter(entity, other_entity)
 	if other_entity.isEnemy then return 'cross' end

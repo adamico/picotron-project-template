@@ -1,14 +1,20 @@
--- collision
--- death
--- drawPowerups
--- drawParticles
--- drawFloats
--- spawnLoot
+-- refine collision
+
 -- checkPlayerProtected
 -- checkPlayerForm
 -- playerTurn
--- doGameOver
--- harmLoot
--- executeMonsterAi
+
 -- getPowerUp
+-- drawPowerups
+
+-- drawParticles
+
+-- drawFloats
+
+-- spawnLoot
+-- harmLoot
+
+-- executeMonsterAi
+
+-- doGameOver
 -- doEndLevel

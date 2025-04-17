@@ -3,13 +3,12 @@ local capture = tiny.processingSystem()
 capture.filter = tiny.requireAll('capture')
 
 function capture:process(entity, _dt)
-	local actor = entity.actor
 	local capture = entity.capture
 	local position = entity.position
 	local state = entity.state
 	local score = entity.score
 
-	local actor_number = actor.id
+	local actor_number = entity.number
 	local fsm = state.machine
 
 	local tiles_to_capture = {}

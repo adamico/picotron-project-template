@@ -1,11 +1,10 @@
 local machine = require('statemachine')
-
-local Player = class('Player')
+local Timer   = require('timer')
+local Player  = class('Player')
 
 local can_play_start_engine = true
 local onentermoving = function(self, event, from, to)
   if not can_play_start_engine then return end
-  hover_t = nil
   sfx(PlayerSounds.start_engine, 7)
   can_play_start_engine = false
 end
@@ -30,16 +29,9 @@ local idleStates = {
 
 local movingAndIdleStates = ShallowMerge(movingStates, idleStates)
 
-function Player:initialize(name, position)
-  self.isPlayer = true
-  self.isSolid = true
+local allStates = ShallowMerge(movingAndIdleStates, {'shooting'})
 
-  self.actor = {
-    type = 'player',
-    id = number or 1,
-    name = name or 'Player1'
-  }
-
+function Player:initialize(name, position, number)
   self.animation = {
     offset_speed=0.06,
     offset_x = 0,
@@ -48,29 +40,38 @@ function Player:initialize(name, position)
     start_offset_y = 0,
     offset_t = 0,
     statesToSprites = {
+      capturing = 5,
+      capturing2 = 6,
+      capturing3 = 7,
+      dead = 16,
+      hovering = 8,
       idle = 0,
       moving_left = 1,
       moving_right = 2,
       moving_up = 3,
       moving_down = 4,
-      capturing = 5,
-      capturing2 = 6,
-      capturing3 = 7,
-      hovering = 8,
       shooting = 9 -- TODO: add muzzle flash with direction
     }
   }
 
-  self.box      = {x=0, y=0, w=24, h=24}
-  self.capture  = {time=0, power=1}
-  self.control  = {}
-  self.hover    = {}
-  self.physics  = {vel=vec(0,0), dir=vec(0,0)}
-  self.position = position or vec(0,0)
-  self.score    = {captured=0 }
-  self.shoot    = {time=0, dir=nil, speed=6, rate=60, bullets={}}
-  self.sprite   = {number= 0}
-  self.state    = {
+  self.box          = {x=0, y=0, w=24, h=24}
+  self.capture      = {time=0, power=1}
+  self.controllable = true
+  self.maxHealth    = 30
+  self.health       = self.maxHealth
+  self.isInvincible = false
+  self.isActor      = true
+  self.isPlayer     = true
+  self.isSolid      = true
+  self.isVisible    = true
+  self.name         = name or 'Player1'
+  self.number       = number or 1
+  self.physics      = {vel=vec(0,0), dir=vec(0,0)}
+  self.position     = position or vec(0,0)
+  self.score        = {captured=0 }
+  self.gun          = {time=0, dir=nil, speed=6, rate=60, power=5}
+  self.sprite       = {number= 0}
+  self.state        = {
     dirToState = {
       left =    'move_left',
       right =   'move_right',
@@ -81,31 +82,32 @@ function Player:initialize(name, position)
     machine = machine.create({
       initial = 'idle',
       events = {
-        { name = 'move_left', 		 from = movingAndIdleStates, to = 'moving_left' },
-        { name = 'move_right', 		 from = movingAndIdleStates, to = 'moving_right' },
-        { name = 'move_up', 		   from = movingAndIdleStates, to = 'moving_up' },
-        { name = 'move_down', 		 from = movingAndIdleStates, to = 'moving_down' },
-        { name = 'stop_moving', 	 from = movingStates, 				                             to = 'hovering' },
-        { name = 'land', 					 from = 'hovering',						                             to = 'idle' },
-        { name = 'capture',  			 from = {'idle', 'hovering'},	                             to = 'capturing' },
-        { name = 'capture2',  		 from = 'capturing',	                                     to = 'capturing2' },
-        { name = 'capture3',  		 from = 'capturing2',       	                             to = 'capturing3' },
-        { name = 'stop_capturing', from = captureStates,			                               to = 'idle' },
-        { name = 'shoot',          from = {'idle', 'hovering'},                              to = 'shooting' },
-        { name = 'stop_shooting',  from = {'shooting'},                                      to = 'idle' }
+        { name = 'move_left', 		 from = movingAndIdleStates,  to = 'moving_left' },
+        { name = 'move_right', 		 from = movingAndIdleStates,  to = 'moving_right' },
+        { name = 'move_up', 		   from = movingAndIdleStates,  to = 'moving_up' },
+        { name = 'move_down', 		 from = movingAndIdleStates,  to = 'moving_down' },
+        { name = 'stop_moving', 	 from = movingStates, 				to = 'hovering' },
+        { name = 'die',            from = allStates,            to = 'dead'},
+        { name = 'land', 					 from = 'hovering',						to = 'idle' },
+        { name = 'capture',  			 from = {'idle', 'hovering'},	to = 'capturing' },
+        { name = 'capture2',  		 from = 'capturing',	        to = 'capturing2' },
+        { name = 'capture3',  		 from = 'capturing2',       	to = 'capturing3' },
+        { name = 'stop_capturing', from = captureStates,			  to = 'idle' },
+        { name = 'shoot',          from = {'idle', 'hovering'}, to = 'shooting' },
+        { name = 'stop_shooting',  from = {'shooting'},         to = 'idle' }
       },
       callbacks = {
         onentermoving_left =  onentermoving,
         onentermoving_right = onentermoving,
         onentermoving_up =    onentermoving,
         onentermoving_down =  onentermoving,
-        onafterland = function(self, event, from, to)
-          sfx(PlayerSounds.stop_engine, 7)
-        end,
         onenterhovering = function(self, event, from, to)
           can_play_start_engine = true
-          HoverTimer:after(0.5, function() self:land() end)
+          Timer.after(0.5, function() self:land() end)
           -- TODO: restart the timer when moving again
+        end,
+        onafterland = function(self, event, from, to)
+          sfx(PlayerSounds.stop_engine, 7)
         end,
         onaftercapture = function (self, event, from, to)
           sfx(PlayerSounds.start_capturing, 8)
@@ -128,7 +130,6 @@ function Player:initialize(name, position)
   self.z_index = 1000
 end
 
-
 local function drawOffset(sprite, position, offset)
   local offsetpos = {x=position.x*TileSizeX + offset.x, y=position.y*TileSizeY + offset.y}
   if (offsetpos.x ~= position.x*TileSizeX or offsetpos.y ~= position.y*TileSizeY) then
@@ -148,10 +149,11 @@ function Player:draw()
 	local state = self.state.machine.current
 
 	local offset = {x=animation.offset_x, y=animation.offset_y}
-  self.sprite = animation.statesToSprites[state]
+  local sprite = animation.statesToSprites[state]
 
   -- drawOffset(self.sprite, position, offset)
 
+  self.sprite = self.isVisible and sprite or nil
 	palt(30, true)
 	palt(0, false)
 	spr(self.sprite,
@@ -159,13 +161,36 @@ function Player:draw()
 		position.y * TileSizeY + offset.y)
 end
 
-function Player:onHit()
-  sfx(PlayerSounds.hit)
+function Player:die()
+  world:remove(self)
+end
+
+function Player:takeDamage(damage)
+  self.health = self.health - damage
+  sfx(-1, 7)
+  if self.health <= 0 then
+    sfx(PlayerSounds.die, 7)
+    self:die()
+  else
+    sfx(PlayerSounds.hit, 7)
+  end
+end
+
+function Player:onHit(damage)
+  self:takeDamage(damage)
+  self.isInvincible = true
+  Timer.during(3, function()
+    self.isVisible = (t() % .3) < .1
+  end, function()
+      self.isVisible = true
+      self.isInvincible = false
+  end)
 end
 
 function Player:onCollision(collision)
-  if collision.other.isEnemy then self:onHit() end
-  --TODO: check invuln and isAlive for player and enemy
+  if self.isInvincible then return end
+  local other = collision.other
+  if other.isEnemy then self:onHit(other.damage) end
 end
 
 return Player

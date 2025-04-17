@@ -1,32 +1,30 @@
 local shooting = tiny.processingSystem()
 local Bullet = require('bullet')
 
-shooting.filter = tiny.requireAll('shoot')
+shooting.filter = tiny.requireAll('gun')
 
 function shooting:process(entity, _dt)
   local position = entity.position
-  local shoot = entity.shoot
+  local gun = entity.gun
   local state = entity.state
 
   local fsm = state.machine
-  local bullets = shoot.bullets
-  local shooting_rate = shoot.rate
+  local shooting_rate = gun.rate
 
-  if btn(5) and shoot.time == 0 then
-    shoot.dir = ButtonsToDir()
-    if shoot.dir.x ~= 0 or shoot.dir.y ~=0 then
-      fsm:shoot(shoot)
+  if btn(5) and gun.time == 0 then
+    gun.dir = ButtonsToDir()
+    if gun.dir.x ~= 0 or gun.dir.y ~=0 then
+      fsm:shoot(gun)
     end
   else
     fsm:stop_shooting()
   end
 
-  if shoot.time == shooting_rate then
-    local bullet = Bullet:new(position, shoot, entity)
+  if gun.time == shooting_rate then
+    local bullet = Bullet:new(position, gun, entity)
     world:add(bullet)
-    add(bullets, bullet)
   end
-  shoot.time = max(shoot.time - 1, 0)
+  gun.time = max(gun.time - 1, 0)
 end
 
 return shooting

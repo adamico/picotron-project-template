@@ -1,20 +1,19 @@
 local Bullet = class('Bullet')
 
-Bullet.isBullet = true
-
 function Bullet:initialize(position_component, shoot_component, owner_entity)
-  self.box = {x=0, y=0, w=12, h=12}
-  self.bullet = {}
+  self.box      = {x=0, y=0, w=12, h=12}
+  self.damage   = owner_entity.gun.power
+  self.isBullet = true
+  self.physics = {
+    dir = shoot_component.dir,
+    vx  = shoot_component.speed,
+    vy = shoot_component.speed
+  }
   self.position = vec(
     (position_component.x + 0.5 * shoot_component.dir.x)*TileSizeX,
     (position_component.y + 0.5 * shoot_component.dir.y)*TileSizeY
   )
-  self.sprite = 10
-  self.physics = {
-    dir = shoot_component.dir,
-    vx = shoot_component.speed, vy = shoot_component.speed
-  }
-  self.belongsTo = owner_entity
+  self.sprite  = 10
   self.z_index = 1
 end
 
@@ -29,10 +28,11 @@ function Bullet:die()
 end
 
 function Bullet:onCollision(collision)
-  self:die()
-  if collision.other.isEnemy and collision.other.gotHit then
-    collision.other:gotHit()
+  local other = collision.other
+  if other.isEnemy and other.onHit then
+    other:onHit(self.damage)
   end
+  self:die()
 end
 
 return Bullet

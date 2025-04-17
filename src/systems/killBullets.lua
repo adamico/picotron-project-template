@@ -6,20 +6,16 @@ local outOfMapBounds = function(position, bounds)
     or position.x < 0 or position.y < 0
 end
 
-killBullets.filter = tiny.requireAll('bullet')
+killBullets.filter = tiny.requireAll('isBullet')
 
 function killBullets:process(entity, _dt)
-  local position = entity.position
-  local owner = entity.belongsTo
-
   local map_bounds = {
     x = Map:width(),
     y = Map:height()
   }
 
-  if outOfMapBounds(position, map_bounds) then
-    world:removeEntity(entity)
-    del(owner.shoot.bullets, entity)
+  if outOfMapBounds(entity.position, map_bounds) then
+    entity:die()
   end
 end
 

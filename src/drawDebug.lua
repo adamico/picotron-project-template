@@ -3,9 +3,9 @@ local pgui = require("pgui")
 local drawDebug = function(player, spawner)
 	local physics  = player.physics
 	local position = player.position
-	local shoot 	 = player.shoot
+	local gun 	 = player.gun
 	local fsm      = player.state.machine
-	local bullets  = shoot.bullets
+	local bullets  = gun.bullets
 	local state    = fsm.current
 	local dir      = physics.dir
 
@@ -13,20 +13,16 @@ local drawDebug = function(player, spawner)
 	add(contents, {"text", {text="cpu:"..flr(stat(1)*100), size=vec(200,8)}})
 	add(contents, {"text", {text="Px/y: "..pod(position.x).."/"..pod(position.y)}})
 	add(contents, {"text", {text="dirx/y: "..pod(dir.x).."/"..pod(dir.y)}})
-	add(contents, {"text", {text="State: "..pod(state)}})
-	if Enemies then
-		add(contents, {"text", {text="Enemies: "..pod(#Enemies)}})
-		if Enemies[1] then
-			local enemy = Enemies[1]
-			add(contents, {"text", {text="Enemy1pos: "..pod(enemy.position)}})
-		end
-	end
+	-- add(contents, {"text", {text="State: "..pod(state)}})
+	-- add(contents, {"text", {text="Blink: "..pod(player.blink)}})
+	-- add(contents, {"text", {text="Blink: "..pod(player.blink)}})
+	add(contents, {"text", {text="Enemies: "..pod(#spawner.spawnedEnemies)}})
 
 	-- add(contents, {"text", {text="animation offset t: "..pod(animation.offset_t)}})
 	-- add(contents, {"text", {text="Sprite: "..pod(sprite.number)}})
-	-- add(contents, {"text", {text="Shooting time: "..pod(shoot.time)}})
-	-- add(contents, {"text", {text="Shooting rate: "..pod(shoot.rate)}})
-	-- add(contents, {"text", {text="Shooting dir: "..pod(shoot.dir)}})
+	-- add(contents, {"text", {text="Shooting time: "..pod(gun.time)}})
+	-- add(contents, {"text", {text="Shooting rate: "..pod(gun.rate)}})
+	-- add(contents, {"text", {text="Shooting dir: "..pod(gun.dir)}})
 	-- if bullets then
 	-- 	add(contents, {"text", {text="bullets#"..pod(#bullets)}})
 	-- 	if bullets[1] then 

@@ -22,7 +22,7 @@ end
 
 function drawSprites:process(entity, dt)
   entity:draw(dt)
-  drawBump()
+  -- drawBump()
 end
 
 function drawSprites:compare(e1, e2)

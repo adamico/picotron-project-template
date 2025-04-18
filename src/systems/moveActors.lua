@@ -5,15 +5,6 @@ function MoveActors:initialize(bumpWorld)
 	self.bumpWorld = bumpWorld
 end
 
-local checkTileFlag = function(x, y, flag)
-	local tile = mget(x, y)
-	return fget(tile, flag)
-end
-
-local canMoveTo = function(x, y)
-	return not checkTileFlag(x, y, 0)
-end
-
 MoveActors.filter = tiny.requireAll('isActor')
 
 local function collisionFilter(entity, other_entity)
@@ -41,7 +32,7 @@ function MoveActors:process(entity, _dt)
 	end
 
 	local cols, len, actualX, actualY
-	if (goalX ~= position.x or goalY ~= position.y) and canMoveTo(goalX, goalY) then
+	if (goalX ~= position.x or goalY ~= position.y) and CanMoveTo(goalX, goalY) then
 		actualX, actualY, cols, len = self.bumpWorld:move(entity, goalX*TileSizeX, goalY*TileSizeY, collisionFilter)
 		position.x, position.y = actualX/TileSizeX, actualY/TileSizeX
 		animation.start_offset_x = new_offset_x

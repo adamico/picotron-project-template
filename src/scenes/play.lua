@@ -22,7 +22,7 @@ local Spawner = require('spawner')
 
 local player, cam, spawner
 
-local checkTileFlag = function(x, y, flag)
+local CheckTileFlag = function(x, y, flag)
 	local tile = mget(x, y)
 	return fget(tile, flag)
 end
@@ -51,7 +51,7 @@ function Play:enteredState()
 		require('drawSprites'),
 		require('killBullets'),
 		require('spawnEnemies'),
-		require('executeAI')(player),
+		require('executeAI'),
 		require('drawUI')
 	)
 

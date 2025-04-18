@@ -1,8 +1,8 @@
 local log = require('log')
+
 add_module_path("lib/beehive/")
 local selector = require('selector')
 local sequence = require('sequence')
-local repeatNode = require('repeat')
 
 local lineOfSightSystem = {
   canSeePlayer = function(self, entity,player)
@@ -24,7 +24,7 @@ local function canSeePlayer(entity, dt, player)
   --   log.info('cannot see player yet')
   --   return 'failure'
   -- end
-  return 'success'
+  return 'failure'
 end
 
 -- Wait a bit of time before succeeding.
@@ -43,14 +43,14 @@ local function waitRandom(low, hi)
   end
 end
 
-local function wander(entity, dt)
+local function wander(entity, dt, player)
   return 'success'
 end
 
 local function chase(entity, dt, player)
   log.info('chase')
   -- Makes entity move towards player, then always returns 'success'.
-  entity.position.x = entity.position.x + 1
+  entity.physics.dir = vec(-1,0)
   return 'success'
 end
 
@@ -63,7 +63,7 @@ end
 
 -- If the player is visible, then chase them.
 local function hunt()
-  log.info('hunt')
+  log.info('hunting')
   return sequence({
     canSeePlayer,
     chase
@@ -72,13 +72,10 @@ end
 
 -- Mostly spend your time walking around. If the player pops
 -- up, hunt them.
-local function makeBrain()
+function behavior()
+  log.info('starting behavior 1')
   return selector({
-    hunt(),
+    chase(),
     walkAround()
   })
 end
-
-local brain = makeBrain()
-
-return brain

@@ -108,6 +108,18 @@ AllElementsBut = function(array, element)
   return array2
 end
 
+function LineOfSight(actor1, actor2)
+  return true
+end
+
+function CheckTileFlag(x, y, flag)
+	local tile = mget(x, y)
+	return fget(tile, flag)
+end
+
+function CanMoveTo(x, y)
+	return not CheckTileFlag(x, y, 0)
+end
 
 function sort(a,cmp)
 	for i=1,#a do

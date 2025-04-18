@@ -61,7 +61,15 @@ function Player:initialize(name, position, number)
   self.health       = self.maxHealth
   self.isInvincible = false
   self.isActor      = true
+  self.isCapturing  = function()
+    local capture = false
+    for state in all(allStates) do
+      capture = self.state.machine:is(state)
+    end
+    return capture
+  end
   self.isPlayer     = true
+  self.isProtected  = false
   self.isSolid      = true
   self.isVisible    = true
   self.name         = name or 'Player1'

@@ -1,15 +1,10 @@
 local executeAI = tiny.processingSystem(class('ExecuteAI'))
+local Timer = require('timer')
 
-executeAI.filter = tiny.requireAll('ai')
-
-function executeAI:initialize(target)
-  self.target = target
-end
+executeAI.filter = tiny.requireAll('task')
 
 function executeAI:process(entity, dt)
-  if not self.target then return end
-
-  entity:think(dt)
+  entity:task(dt)
 end
 
 return executeAI

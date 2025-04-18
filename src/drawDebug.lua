@@ -17,6 +17,8 @@ local drawDebug = function(player, spawner)
 	-- add(contents, {"text", {text="Blink: "..pod(player.blink)}})
 	-- add(contents, {"text", {text="Blink: "..pod(player.blink)}})
 	add(contents, {"text", {text="Enemies: "..pod(#spawner.spawnedEnemies)}})
+	local destination = spawner.spawnedEnemies[1].destination
+	if destionation then add(contents, {"text", {text="Enemy task: "..pod(destination)}}) end
 
 	-- add(contents, {"text", {text="animation offset t: "..pod(animation.offset_t)}})
 	-- add(contents, {"text", {text="Sprite: "..pod(sprite.number)}})

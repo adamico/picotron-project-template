@@ -34,6 +34,7 @@ local SceneManager = require('scene_manager')
 
 Scene = 0
 NextScene = 0
+Debug = {}
 
 local gameover = require("gameover")
 local play 		 = require("play")
@@ -69,6 +70,7 @@ function _update()
 	log.trace("> Entering _update()")
 
 	local success, err = pcall(function()
+		AddDebug("cpu", string.format("%.0f", stat(1)*10000).."%")
 		Game:update()
 	end)
 

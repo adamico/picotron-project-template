@@ -121,6 +121,10 @@ function CanMoveTo(x, y)
 	return not CheckTileFlag(x, y, 0)
 end
 
+function AddDebug(label, value)
+	Debug[label] = value
+end
+
 function sort(a,cmp)
 	for i=1,#a do
 			local j = i

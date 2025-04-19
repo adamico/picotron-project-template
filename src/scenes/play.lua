@@ -67,6 +67,7 @@ local lastTickTime = time()
 function Play:update()
 	AddDebug("player", pod(players[1].position))
 	AddDebug("capturing", pod(players[1].isCapturing()))
+	AddDebug("protected", pod(players[1].isProtected()))
 	
 
 	local tickTime = time()

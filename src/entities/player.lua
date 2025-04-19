@@ -62,7 +62,10 @@ function Player:initialize(name, position, number)
   self.isInvincible = false
   self.isActor      = true
   self.isPlayer     = true
-  self.isProtected  = false
+  self.isProtected  = function()
+    local protected = mget(self.position.x, self.position.y) == PlayerTiles[self.number]
+    return protected
+  end
   self.isSolid      = true
   self.isVisible    = true
   self.name         = name or 'Player1'

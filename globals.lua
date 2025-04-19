@@ -108,8 +108,15 @@ AllElementsBut = function(array, element)
   return array2
 end
 
+function Distance(actor1, actor2)
+	local dx = actor1.position.x-actor2.position.x
+	local dy = actor1.position.y-actor2.position.y
+
+	return sqrt(dx*dx+dy*dy)
+end
+
 function LineOfSight(actor1, actor2)
-  return true
+  return Distance(actor1, actor2) <= actor1.sight
 end
 
 function CheckTileFlag(x, y, flag)

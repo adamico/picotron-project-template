@@ -36,6 +36,7 @@ function Enemy:initialize(position, w, h)
   self.number      = 5
   self.physics     = {vel=vec(0,0), dir=vec(0,0)}
   self.position    = position
+  self.sight       = 4
   self.sprite      = 18
   self.state       = {
     dirToState = {
@@ -92,9 +93,8 @@ local function randomDest(origin)
   return dest
 end
 
-local function canHunt(player)
-  return player.isCapturing()
-  -- return (LineOfSight(self, player) or player.isCapturing())
+function Enemy:canHunt(player)
+  return (LineOfSight(self, player) or player.isCapturing())
     and not (player.isProtected or player.isInvincible)
 end
 
@@ -126,7 +126,7 @@ end
 function Enemy:wander()
   -- AddDebug('task', 'wander')
   local player = players[1]
-  if canHunt(player) then self.task = self.attack return end
+  if self:canHunt(player) then self.task = self.attack return end
   local path = self.destination.path
   local origin = self.belongsTo.position
   self.destination.goal = path and self.destination.goal or randomDest(origin)
@@ -154,7 +154,7 @@ function Enemy:think(dt)
   self.destination.path = nil
   self.physics.dir = vec(0,0)
   Timer.after(2, function()
-    self.task = canHunt(player) and self.attack or self.wander
+    self.task = self:canHunt(player) and self.attack or self.wander
   end)
 end
 

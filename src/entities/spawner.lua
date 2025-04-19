@@ -30,7 +30,7 @@ local function randomPositions(position)
 end
 
 function Spawner:spawn(_dt)
-  if #self.spawnedEnemies < 1 and self.canSpawn then
+  if #self.spawnedEnemies < 3 and self.canSpawn then
     local positions = randomPositions(self.position)
     local xs = chance.helpers.shuffle(positions.x)
     local ys = chance.helpers.shuffle(positions.y)

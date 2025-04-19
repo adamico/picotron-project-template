@@ -87,39 +87,19 @@ function Enemy:onHit(damage)
   Timer.during(0.05, function() self.isFlashing = true end, function() self.isFlashing = false end)
 end
 
-local function getDirTo(next_position, position)
-  return vec(next_position.x - position.x, next_position.y - position.y)
-end
-
-local function randomDest()
-  local dest = vec(flr(rnd(29))+9, flr(rnd(29))+9)
+local function randomDest(origin)
+  local dest = rnd(1)<0.2 and origin + vec(flr(rnd(1)+1), flr(rnd(1)+1)) or vec(flr(rnd(origin.x+2)), flr(rnd(origin.y+2)))
   return dest
 end
 
-local function sameVectors(vec1, vec2)
-  return vec1.x == vec2.x and vec1.y == vec2.y
-end
-
 local function canHunt(player)
-  return false
+  return player.isCapturing()
   -- return (LineOfSight(self, player) or player.isCapturing())
-  --   and not (player.isProtected or player.isInvincible)
+    and not (player.isProtected or player.isInvincible)
 end
 
 function Enemy:getNearestPlayer()
   return players[1]
-end
-
-function Enemy:attack()
-  AddDebug('task', 'attack')
-  local player = players[1]
-  if sameVectors(self.position, player.position) then
-    self.task = self.wait
-    return
-  end
-
-  self:setPath()
-  self:changeDirAndAdvanceStep()
 end
 
 function Enemy:setPath()
@@ -144,9 +124,24 @@ function Enemy:setDir()
 end
 
 function Enemy:wander()
-  AddDebug('task', 'wander')
+  -- AddDebug('task', 'wander')
+  local player = players[1]
+  if canHunt(player) then self.task = self.attack return end
   local path = self.destination.path
-  self.destination.goal = path and self.destination.goal or randomDest()
+  local origin = self.belongsTo.position
+  self.destination.goal = path and self.destination.goal or randomDest(origin)
+  self:setPath()
+  if not path or #path == 0 then self.task = self.think return end
+  deli(path, 1)
+  self:setDir()
+end
+
+function Enemy:attack()
+  -- AddDebug('task', 'attack')
+  local player = players[1]
+  -- if not canHunt(player) then self.task = self.think return end
+  local path = self.destination.path
+  self.destination.goal = path and self.destination.goal or player.position
   self:setPath()
   if not path or #path == 0 then self.task = self.think return end
   deli(path, 1)
@@ -154,7 +149,7 @@ function Enemy:wander()
 end
 
 function Enemy:think(dt)
-  AddDebug('task', 'thinking')
+  -- AddDebug('task', 'think')
   local player = players[1]
   self.destination.path = nil
   self.physics.dir = vec(0,0)

@@ -1,8 +1,8 @@
-local capture = tiny.processingSystem()
+local Capture = tiny.processingSystem()
 
-capture.filter = tiny.requireAll('capture')
+Capture.filter = tiny.requireAll('capture')
 
-function capture:process(entity, _dt)
+function Capture:process(entity, _dt)
 	local capture = entity.capture
 	local position = entity.position
 	local state = entity.state
@@ -51,4 +51,4 @@ function capture:process(entity, _dt)
 	end
 end
 
-return capture
+return Capture

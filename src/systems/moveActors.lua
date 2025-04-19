@@ -20,6 +20,7 @@ function MoveActors:process(entity, _dt)
 	local position  = entity.position
 
 	local dir = physics.dir
+	if not dir then return end
 
 	local new_offset_x, new_offset_y = animation.start_offset_x, animation.start_offset_y
 	local goalX, goalY = position.x, position.y

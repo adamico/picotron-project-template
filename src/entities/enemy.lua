@@ -1,7 +1,6 @@
-local machine    = require('statemachine')
-local log        = require('log')
-local luafinding = require('luafinding')
-local Vector     = require('vector')  
+local machine = require('statemachine')
+local log     = require('log')
+local astar   = require('astar')
 
 local Enemy = class('enemy')
 
@@ -54,7 +53,7 @@ function Enemy:initialize(position, w, h)
       }
     })
   }
-  self.task = self.wait
+  self.task = self.think
   self.z_index = 3
 end
 
@@ -88,14 +87,13 @@ function Enemy:onHit(damage)
   Timer.during(0.05, function() self.isFlashing = true end, function() self.isFlashing = false end)
 end
 
-local function getDirFor(step)
-  -- calculate vector to get from current pos to next step in path
-  return vec(-1,0)
+local function getDirTo(next_position, position)
+  return vec(next_position.x - position.x, next_position.y - position.y)
 end
 
 local function randomDest()
-  return Vector(min(flr(rnd(Map:width())) + 9, Map:width()-9),
-                min(flr(rnd(Map:height())) + 9, Map:height()-9))
+  local dest = vec(flr(rnd(29))+9, flr(rnd(29))+9)
+  return dest
 end
 
 local function sameVectors(vec1, vec2)
@@ -103,71 +101,66 @@ local function sameVectors(vec1, vec2)
 end
 
 local function canHunt(player)
-  return (LineOfSight(self, player) or player.isCapturing())
-    and not (player.isProtected or player.isInvincible)
+  return false
+  -- return (LineOfSight(self, player) or player.isCapturing())
+  --   and not (player.isProtected or player.isInvincible)
 end
 
 function Enemy:getNearestPlayer()
   return players[1]
 end
 
-function Enemy:setPath(goal)
-  local vgoal = Vector(goal.x, goal.y)
-  local vstart = Vector(self.position.x, self.position.y)
-  local map = {}
-  for x=1,Map:width() do
-    map[x] = {}
-    for y=1,Map:height() do
-      map[x][y] = CanMoveTo(x,y)
-    end
+function Enemy:attack()
+  AddDebug('task', 'attack')
+  local player = players[1]
+  if sameVectors(self.position, player.position) then
+    self.task = self.wait
+    return
   end
-  self.destination.path = luafinding(vstart, vgoal, map):GetPath()
-  self.destination.goal = vgoal
-  self.destination.step = 1
+
+  self:setPath()
+  self:changeDirAndAdvanceStep()
 end
 
-function Enemy:changeDirAndAdvanceStep()
-  self.physics.dir = getDirFor(self.destination.path[self.destination.step])
-  self.destination.step = self.destination.step + 1
+function Enemy:setPath()
+  local start = vec(self.position.x, self.position.y)
+  local goal = self.destination.goal
+  local path = astar.getPath(start, goal, CanMoveTo)
+  deli(path, 1)
+  self.destination.path = path
+end
+
+function Enemy:setDir()
+  local position = self.position
+  local path = self.destination.path
+
+  if not path or #path == 0 then return end
+  local next_position = path[1]
+  local new_dir = vec(
+    next_position.x - position.x,
+    next_position.y - position.y
+  )
+  self.physics.dir = new_dir
 end
 
 function Enemy:wander()
-  if not self.destination.path then
-    self:setPath(randomDest())
-    return
-  end
-
-  if canHunt(self:getNearestPlayer()) then
-    self.task = self.attack
-    return
-  end
-
-  if sameVectors(self.position, self.destination.goal) then
-    self.task = self.wait
-    return
-  end
-
-  self:changeDirAndAdvanceStep()
+  AddDebug('task', 'wander')
+  local path = self.destination.path
+  self.destination.goal = path and self.destination.goal or randomDest()
+  self:setPath()
+  if not path or #path == 0 then self.task = self.think return end
+  deli(path, 1)
+  self:setDir()
 end
 
-function Enemy:attack()
+function Enemy:think(dt)
+  AddDebug('task', 'thinking')
   local player = players[1]
-  if sameVectors(self.destination.goal, player.position) then
-    self.task = self.wait
-    return
-  end
-
-  self:setPath(player.position)
-  self:changeDirAndAdvanceStep()
-end
-
-function Enemy:wait()
   self.destination.path = nil
-  self.destination.step = nil
-  self.destination.goal = nil
   self.physics.dir = vec(0,0)
-  -- add a timer here
-  Timer.after(2, function() self.task = self.wander end)
+  Timer.after(2, function()
+    self.task = canHunt(player) and self.attack or self.wander
+  end)
 end
 
 return Enemy

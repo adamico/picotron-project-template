@@ -3,6 +3,7 @@ local updateActorState = tiny.processingSystem()
 updateActorState.filter = tiny.requireAll('isActor')
 
 function updateActorState:process(entity, _dt)
+	if not dir then return end
 	local dir = entity.physics.dir
 	local state = entity.state
 	local fsm = state.machine

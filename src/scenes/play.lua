@@ -65,6 +65,7 @@ local updateFilter = tiny.rejectAny('isDrawSystem')
 
 local lastTickTime = time()
 function Play:update()
+	AddDebug("player", pod(players[1].position))
 	local tickTime = time()
 	local dt = tickTime - lastTickTime
 	if world then world:update(dt, updateFilter) end

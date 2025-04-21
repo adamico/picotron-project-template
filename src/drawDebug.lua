@@ -1,14 +1,7 @@
 local pgui = require("pgui")
 
-local drawDebug = function(player, spawner)
-	local physics  = player.physics
-	local position = player.position
-	local gun 	 = player.gun
-	local fsm      = player.state.machine
-	local bullets  = gun.bullets
-	local state    = fsm.current
-	local dir      = physics.dir
 
+local drawDebug = function()
 	local contents = {}
 
 	for label, value in pairs(Debug) do

@@ -124,6 +124,14 @@ function CheckTileFlag(x, y, flag)
 	return fget(tile, flag)
 end
 
+function IsCaptured(x, y)
+  local captured = false
+  for tileNr in all(PlayerTiles) do
+    captured = mget(x, y) == tileNr
+  end
+  return captured
+end
+
 function CanMoveTo(x, y)
 	return not CheckTileFlag(x, y, 0)
 end

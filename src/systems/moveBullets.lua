@@ -1,13 +1,17 @@
-local moveBullets = tiny.processingSystem()
+local MoveBullets = tiny.processingSystem(class('MoveBullets'))
 
-moveBullets.filter = tiny.requireAll('isBullet')
+MoveBullets.filter = tiny.requireAll('isBullet')
 
 local function collisionFilter(entity, other_entity)
 	if other_entity.isEnemy then return 'cross' end
 	return nil
 end
 
-function moveBullets:process(entity, _dt)
+function MoveBullets:initialize(bumpWorld)
+	self.bumpWorld = bumpWorld
+end
+
+function MoveBullets:process(entity, _dt)
 	local physics = entity.physics
 	local position = entity.position
 
@@ -15,7 +19,7 @@ function moveBullets:process(entity, _dt)
 	local goalX = position.x + dir.x * physics.vx
 	local goalY = position.y + dir.y * physics.vy
 
-	local actualX, actualY, cols, len = bumpWorld:move(
+	local actualX, actualY, cols, len = self.bumpWorld:move(
 		entity, goalX, goalY, collisionFilter
 	)
 
@@ -31,14 +35,14 @@ function moveBullets:process(entity, _dt)
 	end
 end
 
-function moveBullets:onAdd(entity)
+function MoveBullets:onAdd(entity)
 	local position = entity.position
 	local box = entity.box
-	bumpWorld:add(entity, position.x, position.y, box.w, box.h)
+	self.bumpWorld:add(entity, position.x, position.y, box.w, box.h)
 end
 
-function moveBullets:onRemove(entity)
-	bumpWorld:remove(entity)
+function MoveBullets:onRemove(entity)
+	self.bumpWorld:remove(entity)
 end
 
-return moveBullets
+return MoveBullets

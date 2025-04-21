@@ -9,8 +9,12 @@ local drawDebug = require('drawDebug')
 local Play = SceneManager:addState('Play')
 
 Map = nil
-Enemies = {}
-players = {}
+
+Enemies  = {}
+Players  = {}
+Spawners = {}
+Cameras  = {}
+BumpWorld = bump.newWorld(TileSizeX)
 
 local play_music = false
 
@@ -18,36 +22,42 @@ local Player  = require('player')
 local Camera  = require('camera')
 local Spawner = require('spawner')
 
---systems
 
-local player, cam, spawner
+local function addPlayers()
+	local player
+	player = Player:new('myself', vec(9,9))
+	add(Players, player)
+	world:add(player)
+end
 
-local CheckTileFlag = function(x, y, flag)
-	local tile = mget(x, y)
-	return fget(tile, flag)
+local function addSpawners()
+	local positions = {vec(15,15), vec(30,14), vec(20,20)}
+	for position in all(positions) do
+		local spawner_sprite = 64
+		spawner = Spawner:new(position, spawner_sprite)
+		world:add(spawner)
+	end
+end
+
+local function addCams()
+	for player in all(Players) do
+		local cam = Camera:new(player)
+		add(Cameras, cam)
+		world:add(cam)
+	end
 end
 
 function Play:enteredState()
 	Map = fetch('assets/map/level1.map')[1].bmp
 	memmap(Map, 0x100000)
 
-	bumpWorld = bump.newWorld(TileSizeX)
-	player = Player:new('myself', vec(9,9))
-	add(players, player)
-
-	cam = Camera:new(player)
-
-	local spawner_position = vec(15,15)
-	local spawner_sprite = 64
-	spawner = Spawner:new(spawner_position, spawner_sprite)
-
 	world = tiny.world(
 		require('handleInput'),
 		require('capture'),
-		require('moveActors')(bumpWorld),
+		require('moveActors')(BumpWorld),
 		require('shooting'),
 		require('updateActorState'),
-		require('moveBullets'),
+		require('moveBullets')(BumpWorld),
 		require('drawSprites'),
 		require('killBullets'),
 		require('spawnEnemies'),
@@ -55,9 +65,9 @@ function Play:enteredState()
 		require('drawUI')
 	)
 
-	world:add(player)
-	world:add(cam)
-	world:add(spawner)
+	addPlayers()
+	addCams()
+	addSpawners()
 end
 
 local drawFilter 	 = tiny.requireAll('isDrawSystem')
@@ -65,10 +75,11 @@ local updateFilter = tiny.rejectAny('isDrawSystem')
 
 local lastTickTime = time()
 function Play:update()
-	AddDebug("player", pod(players[1].position))
-	AddDebug("capturing", pod(players[1].isCapturing()))
-	AddDebug("protected", pod(players[1].isProtected()))
-	
+	AddDebug("p1pos", pod(Players[1].position))
+	AddDebug("p1st",  pod(Players[1].state.machine.current))
+	AddDebug("p1siVisible",  pod(Players[1].isVisible))
+	-- AddDebug("capturing", pod(Players[1].isCapturing()))
+	-- AddDebug("protected", pod(Players[1].isProtected()))
 
 	local tickTime = time()
 	local dt = tickTime - lastTickTime
@@ -87,14 +98,16 @@ function Play:draw()
 	cls(1)
 	pal(0, false)
 
-	cam:update()
+	for cam in all(Cameras) do
+		cam:update()
+	end
 
 	map(0, 0, 0, 0, 48, 48, 0, TileSizeX, TileSizeY)
 
 	if world then world:update(dt, drawFilter) end
 
 	camera()
-	drawDebug(player, spawner)
+	drawDebug()
 	pgui:draw()
 end
 

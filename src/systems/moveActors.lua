@@ -8,10 +8,16 @@ end
 MoveActors.filter = tiny.requireAll('isActor')
 
 local function collisionFilter(entity, other_entity)
-	if entity.isPlayer then
-		if other_entity.isEnemy then return 'cross' end
+	if entity.isInvincible or other_entity.isInvincible then return nil end
+
+	if (entity.isPlayer and other_entity.isPlayer)
+	or (entity.isEnemy and other_entity.isEnemy)
+	or (entity.isPlayer and other_entity.isEnemy)
+	or (entity.isEnemy and other_entity.isPlayer) then
+		return 'touch'
 	end
-	return nil
+
+	return 'cross'
 end
 
 function MoveActors:process(entity, _dt)
@@ -33,9 +39,12 @@ function MoveActors:process(entity, _dt)
 	end
 
 	local cols, len, actualX, actualY
-	if (goalX ~= position.x or goalY ~= position.y) and CanMoveTo(goalX, goalY) then
-		actualX, actualY, cols, len = self.bumpWorld:move(entity, goalX*TileSizeX, goalY*TileSizeY, collisionFilter)
-		position.x, position.y = actualX/TileSizeX, actualY/TileSizeX
+	if (goalX ~= position.x or goalY ~= position.y)
+		and CanMoveTo(goalX, goalY) then
+		actualX, actualY, cols, len = self.bumpWorld:move(
+			entity, goalX*TileSizeX, goalY*TileSizeY,
+			collisionFilter)
+		position.x, position.y = flr(actualX/TileSizeX), flr(actualY/TileSizeX)
 		animation.start_offset_x = new_offset_x
 		animation.start_offset_y = new_offset_y
 		animation.offset_t = 1

@@ -11,9 +11,9 @@ local function getCellRect(world, cx, cy)
 end
 
 local function drawBump()
-  for cy, row in pairs(bumpWorld.rows) do
+  for cy, row in pairs(BumpWorld.rows) do
     for cx, _cell in pairs(row) do
-      local x, y, w, h = getCellRect(bumpWorld, cx, cy)
+      local x, y, w, h = getCellRect(BumpWorld, cx, cy)
       rect(x, y, x+w, x+h, 8)
       log.info("x:"..x.."y:"..y)
     end

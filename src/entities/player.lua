@@ -3,11 +3,6 @@ local Timer   = require('timer')
 local Player  = class('Player')
 
 local can_play_start_engine = true
-local onentermoving = function(self, event, from, to)
-  if not can_play_start_engine then return end
-  sfx(PlayerSounds.start_engine, 7)
-  can_play_start_engine = false
-end
 
 local captureStates = {
   'capturing',
@@ -31,6 +26,12 @@ local movingAndIdleStates = ShallowMerge(movingStates, idleStates)
 
 local allStates = ShallowMerge(movingAndIdleStates, {'shooting'})
 
+local onentermoving = function(self, event, from, to)
+  if not can_play_start_engine then return end
+  sfx(PlayerSounds.start_engine, 7)
+  can_play_start_engine = false
+end
+
 function Player:initialize(name, position, number)
   self.animation = {
     offset_speed=0.06,
@@ -43,7 +44,7 @@ function Player:initialize(name, position, number)
       capturing = 5,
       capturing2 = 6,
       capturing3 = 7,
-      dead = 16,
+      dead = 0,
       hovering = 8,
       idle = 0,
       moving_left = 1,
@@ -57,10 +58,11 @@ function Player:initialize(name, position, number)
   self.box          = {x=0, y=0, w=24, h=24}
   self.capture      = {time=0, power=1}
   self.controllable = true
+  self.gun          = {time=0, dir=nil, speed=6, rate=60, power=5}
   self.maxHealth    = 30
   self.health       = self.maxHealth
-  self.isInvincible = false
   self.isActor      = true
+  self.isInvincible = false
   self.isPlayer     = true
   self.isProtected  = function()
     local protected = mget(self.position.x, self.position.y) == PlayerTiles[self.number]
@@ -68,19 +70,20 @@ function Player:initialize(name, position, number)
   end
   self.isSolid      = true
   self.isVisible    = true
+  self.lives        = 3
   self.name         = name or 'Player1'
   self.number       = number or 1
   self.physics      = {vel=vec(0,0), dir=vec(0,0)}
   self.position     = position or vec(0,0)
+  self.ram_damage   = 5
   self.score        = {captured=0 }
-  self.gun          = {time=0, dir=nil, speed=6, rate=60, power=5}
   self.sprite       = {number= 0}
   self.state        = {
     dirToState = {
-      left =    'move_left',
-      right =   'move_right',
-      up =      'move_up',
-      down =    'move_down',
+      left    = 'move_left',
+      right   = 'move_right',
+      up      = 'move_up',
+      down    = 'move_down',
       neutral = 'stop_moving'
     },
     machine = machine.create({
@@ -92,6 +95,7 @@ function Player:initialize(name, position, number)
         { name = 'move_down', 		 from = movingAndIdleStates,  to = 'moving_down' },
         { name = 'stop_moving', 	 from = movingStates, 				to = 'hovering' },
         { name = 'die',            from = allStates,            to = 'dead'},
+        { name = 'live',           from = 'dead',               to = 'idle'},
         { name = 'land', 					 from = 'hovering',						to = 'idle' },
         { name = 'capture',  			 from = {'idle', 'hovering'},	to = 'capturing' },
         { name = 'capture2',  		 from = 'capturing',	        to = 'capturing2' },
@@ -101,32 +105,45 @@ function Player:initialize(name, position, number)
         { name = 'stop_shooting',  from = {'shooting'},         to = 'idle' }
       },
       callbacks = {
-        onentermoving_left =  onentermoving,
+        onentermoving_left  = onentermoving,
         onentermoving_right = onentermoving,
-        onentermoving_up =    onentermoving,
-        onentermoving_down =  onentermoving,
-        onenterhovering = function(self, event, from, to)
+        onentermoving_up    = onentermoving,
+        onentermoving_down  = onentermoving,
+        onenterhovering     = function(machine, event, from, to)
           can_play_start_engine = true
-          Timer.after(0.5, function() self:land() end)
+          Timer.after(0.5, function() machine:land() end)
           -- TODO: restart the timer when moving again
         end,
-        onafterland = function(self, event, from, to)
-          sfx(PlayerSounds.stop_engine, 7)
+        onafterland = function(machine, event, from, to)
+          sfx(PlayerSounds.stop_engine)
         end,
-        onaftercapture = function (self, event, from, to)
-          sfx(PlayerSounds.start_capturing, 8)
+        onaftercapture = function (machine, event, from, to)
+          sfx(PlayerSounds.start_capturing)
           sfx(-1, 7)
         end,
-        onafterstop_capturing = function(self, event, from, to, capture_component)
+        onafterstop_capturing = function(machine, event, from, to, capture_component)
           capture_component.time = 0
           sfx(-1, 8)
         end,
-        onentershooting = function(self, event, from, to, shoot_component)
-          sfx(PlayerSounds.shooting, 8)
+        onentershooting = function(machine, event, from, to, shoot_component)
+          sfx(PlayerSounds.shooting)
           shoot_component.time = shoot_component.rate
         end,
-        onafterstop_shooting = function(self, event, from, to)
+        onafterstop_shooting = function(machine, event, from, to)
           sfx(-1, 7)
+        end,
+        onenterdead = function(machine, event, from, to)
+          sfx(PlayerSounds.die)
+          self.isInvincible = true
+          self.health = self.maxHealth
+          self.lives  = self.lives - 1
+          Timer.during(3, function()
+            self.isVisible = (t() % .3) < .1
+          end, function()
+            self.isInvincible = false
+            self.isVisible  = true
+            machine:live()
+          end)
         end
       }
     })
@@ -171,36 +188,26 @@ function Player:draw()
 		position.y * TileSizeY + offset.y)
 end
 
-function Player:die()
-  world:remove(self)
-end
-
 function Player:takeDamage(damage)
   self.health = self.health - damage
   sfx(-1, 7)
   if self.health <= 0 then
-    sfx(PlayerSounds.die, 7)
-    self:die()
+    self.state.machine:die()
   else
-    sfx(PlayerSounds.hit, 7)
+    sfx(PlayerSounds.hit)
   end
 end
 
 function Player:onHit(damage)
   self:takeDamage(damage)
-  self.isInvincible = true
-  Timer.during(3, function()
-    self.isVisible = (t() % .3) < .1
-  end, function()
-      self.isVisible = true
-      self.isInvincible = false
-  end)
 end
 
 function Player:onCollision(collision)
-  if self.isInvincible then return end
   local other = collision.other
-  if other.isEnemy then self:onHit(other.damage) end
+  if other.isEnemy then
+    self:onHit(other.ram_damage)
+    other:onHit(self.ram_damage)
+  end
 end
 
 return Player

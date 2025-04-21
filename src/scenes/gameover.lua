@@ -1,11 +1,10 @@
-local gameover = {}
-local shift = require("shift")
+local GameOver = SceneManager:addState('GameOver')
 
-gameover.update = function()
-	if btnp(5) then shift.init(0) end
+function GameOver:update()
+	if btnp(5) then Game:gotoState('Title') end
 end
 
-gameover.draw = function()
+function GameOver:draw()
 	cls(14)
 	camera()
 	local message = "Game over!"
@@ -14,4 +13,10 @@ gameover.draw = function()
   print(message, screen_c_x - message_length/2, Screen.h/6, 0)
 end
 
-return gameover
+function GameOver:enteredState()
+	world:clearEntities()
+end
+
+function GameOver:exitedState() end
+
+return GameOver

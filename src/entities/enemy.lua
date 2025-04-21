@@ -110,6 +110,7 @@ local function randomDest(origin)
 end
 
 function Enemy:canHunt(player)
+  if player == nil then return end
   return (LineOfSight(self, player) or player.isCapturing()) and not (player.isProtected() or player.isInvincible)
 end
 

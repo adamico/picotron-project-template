@@ -115,7 +115,7 @@ function Player:initialize(name, position, number)
           -- TODO: restart the timer when moving again
         end,
         onafterland = function(machine, event, from, to)
-          sfx(PlayerSounds.stop_engine)
+          sfx(PlayerSounds.stop_engine, 7)
         end,
         onaftercapture = function (machine, event, from, to)
           sfx(PlayerSounds.start_capturing)
@@ -137,6 +137,11 @@ function Player:initialize(name, position, number)
           self.isInvincible = true
           self.health = self.maxHealth
           self.lives  = self.lives - 1
+          if self.lives < 0 then
+            del(Players, self)
+            world:remove(self)
+            return
+          end
           Timer.during(3, function()
             self.isVisible = (t() % .3) < .1
           end, function()

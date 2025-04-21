@@ -109,9 +109,10 @@ AllElementsBut = function(array, element)
 end
 
 function Distance(actor1, actor2)
+	if actor2 == nil then return 9999 end
+
 	local dx = actor1.position.x-actor2.position.x
 	local dy = actor1.position.y-actor2.position.y
-
 	return sqrt(dx*dx+dy*dy)
 end
 

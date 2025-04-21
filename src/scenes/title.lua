@@ -41,6 +41,8 @@ function Title:update()
 
   new_game_clicked = stack[1]
   quit_clicked = stack[2]
+
+  if new_game_clicked then Game:gotoState('Play') end
 end
 
 function Title:draw()
@@ -49,7 +51,6 @@ function Title:draw()
   rectfill(0, Screen.h/8, Screen.w, Screen.h/4, 3)
   print(GameTitle, Screen.w/2 - #GameTitle*font_width/2, Screen.h/8 + font_height*2, 7)
 
-  if new_game_clicked then Game:gotoState('Play') end
   if quit_clicked then print("Clicked Quit!", 0, 0, 7) end -- TODO: how do you invoke <quit> in picotron?
 
   local footer = 'V'..GameVersion..' by '..GameAuthor..' '..GameDate

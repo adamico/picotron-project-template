@@ -22,7 +22,6 @@ local Player  = require('player')
 local Camera  = require('camera')
 local Spawner = require('spawner')
 
-
 local function addPlayers()
 	local player
 	player = Player:new('myself', vec(9,9))
@@ -51,7 +50,8 @@ function Play:enteredState()
 	Map = fetch('assets/map/level1.map')[1].bmp
 	memmap(Map, 0x100000)
 
-	world = tiny.world(
+	world = world or tiny.world(
+		require('handleGameOver'),
 		require('handleInput'),
 		require('capture'),
 		require('moveActors')(BumpWorld),
@@ -75,12 +75,12 @@ local updateFilter = tiny.rejectAny('isDrawSystem')
 
 local lastTickTime = time()
 function Play:update()
-	AddDebug("p1pos", pod(Players[1].position))
-	AddDebug("p1st",  pod(Players[1].state.machine.current))
-	AddDebug("p1siVisible",  pod(Players[1].isVisible))
+	if #Players > 0 then
+		AddDebug("p1pos", pod(Players[1].position))
+		AddDebug("p1st",  pod(Players[1].state.machine.current))
 	-- AddDebug("capturing", pod(Players[1].isCapturing()))
 	-- AddDebug("protected", pod(Players[1].isProtected()))
-
+	end
 	local tickTime = time()
 	local dt = tickTime - lastTickTime
 	if world then world:update(dt, updateFilter) end

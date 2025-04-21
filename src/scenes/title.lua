@@ -37,8 +37,6 @@ function Title:update()
     stroke   = false
   })
 
-  --TODO: add cursor to click buttons with keyboard or gamepad or touch
-
   new_game_clicked = stack[1]
   quit_clicked = stack[2]
 
@@ -51,7 +49,7 @@ function Title:draw()
   rectfill(0, Screen.h/8, Screen.w, Screen.h/4, 3)
   print(GameTitle, Screen.w/2 - #GameTitle*font_width/2, Screen.h/8 + font_height*2, 7)
 
-  if quit_clicked then print("Clicked Quit!", 0, 0, 7) end -- TODO: how do you invoke <quit> in picotron?
+  if quit_clicked then print("Clicked Quit!", 0, 0, 7) end
 
   local footer = 'V'..GameVersion..' by '..GameAuthor..' '..GameDate
 
@@ -62,7 +60,6 @@ function Title:draw()
   pgui:draw()
 
   -- self:drawGuides()
-  -- TODO: drawCursor()
 end
 
 function Title:drawGuides()

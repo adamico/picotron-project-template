@@ -21,10 +21,8 @@ function Capture:process(entity, _dt)
 		fsm:stop_capturing(entity)
 	end
 
-	-- TODO: account for size
-
 	if fsm:is("capturing") or fsm:is("capturing2") or fsm:is("capturing3") then
-		if CanCapture(player_number, x, y) then -- TODO: remove this?
+		if CanCapture(player_number, x, y) then
 			add(tiles_to_capture, { x = x, y = y })
 		end
 
@@ -43,8 +41,6 @@ function Capture:process(entity, _dt)
 				local ty = tile.y
 				mset(tx, ty, PlayerTiles[actor_number])
 				score.captured = score.captured + 1
-				--TODO: calculate score, current player +1 and tile owner -1
-				--TODO: check for loot under captured tile
 			end
 			capture.time = 0
 		end

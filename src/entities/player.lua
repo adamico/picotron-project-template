@@ -51,7 +51,7 @@ function Player:initialize(name, position, number)
       moving_right = 2,
       moving_up = 3,
       moving_down = 4,
-      shooting = 9 -- TODO: add muzzle flash with direction
+      shooting = 9
     }
   }
 
@@ -112,7 +112,6 @@ function Player:initialize(name, position, number)
         onenterhovering     = function(machine, event, from, to)
           can_play_start_engine = true
           Timer.after(0.5, function() machine:land() end)
-          -- TODO: restart the timer when moving again
         end,
         onafterland = function(machine, event, from, to)
           sfx(PlayerSounds.stop_engine, 7)

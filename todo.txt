@@ -1,0 +1,62 @@
+Entities
+  Player
+    - add muzzle flash with direction
+    - restart the hover timer when moving again
+  Loot (Position, Sprite/Drawable?, Container, Owner/Contained?, Health)
+  Explosion (Position, Health?, Animation, Sprite/Drawable?)
+  Arena Exit? (Position, Animation, Sprite/Drawable?)
+  Particle (Position, Physics, Particle, Health, Color, Sprite/Drawable)
+  Floating Text (Position, Color, Label)
+
+GameLoop
+  Title
+    - add cursor to click buttons with keyboard or gamepad or touch
+    - implement quit button
+    - move cursor to select buttons
+  Play
+    - calculate capture score, current player +1 and tile owner -1
+		- implement loot in captured tile
+
+Systems
+  -- refine collision
+  -- checkPlayerForm ?
+  -- playerTurn? ?
+  -- getPowerUp
+  -- drawPowerups
+  -- drawParticles
+  -- drawFloats
+  -- spawnLoot
+  -- harmLoot
+  -- doEndLevel
+
+Old ★todo★
+
+-- add key as loot to activate
+--  portal to next level
+
+-- more level layouts
+
+-- more enemies
+-- monster level pools
+-- end game
+
+-- add k powerup to retain
+--   s,c,l
+
+-- add f powerup to freeze mobs
+
+-- add r powerup for radar
+
+-- add rare loot to retain size
+--  after death
+
+-- zoundz
+--  size up
+
+-- game modes
+-- preroll level
+-- achievements
+-- add juiciness
+
+-- enlarge bullets with laser power
+-- logo
